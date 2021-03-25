@@ -1,0 +1,14 @@
+#intellij files
+.idea/*
+.idea*
+
+#Mac file
+*/.DS_Store
+.DS_Store
+
+#result files
+OutputFiles/*
+out/*
+
+#class file
+*.class
