@@ -28,8 +28,8 @@ class AlgoExecutor {
 
     AlgoExecutor(int numRun) {
         this.numRun = numRun;
-        average = 0;
-        runTimes = new long[numRun];
+        this.average = 0;
+        this.runTimes = new long[numRun];
     }
 
     /**
@@ -48,12 +48,12 @@ class AlgoExecutor {
     void useAlgo(int selection, CompressedGraph graph) {
 
         switch (selection) {
-            case 1 -> algo = new BFSGraphTraversal(graph, savePathInMem);
-            case 2 -> algo = new DFSGraphTraversal(graph, savePathInMem);
+            case 1 -> this.algo = new BFSGraphTraversal(graph, savePathInMem);
+            case 2 -> this.algo = new DFSGraphTraversal(graph, savePathInMem);
             case 3 -> addHybrid(graph, ConcatenateType.DFS);
             case 4 -> addHybrid(graph, ConcatenateType.BFS);
-            case 5 -> algo = new M_CETGraphTraversal(graph, savePathInMem);
-            case 6 -> algo = new T_CETGraphTraversal(graph, savePathInMem);
+            case 5 -> this.algo = new M_CETGraphTraversal(graph, savePathInMem);
+            case 6 -> this.algo = new T_CETGraphTraversal(graph, savePathInMem);
             case 7 -> addDoubleSeqHybrid(graph);
             default -> System.out.println("Algo unknown");
         }
@@ -82,12 +82,11 @@ class AlgoExecutor {
                 "Do you want to run it concurrently?(y/n)");
         String input = sc.nextLine();
         if(input.equalsIgnoreCase("y"))
-            algo = new ConcurrentDoubleAnchorTraversal(graph, savePathInMem, null, firstConcatenate, secondConcatenate, reduceType);
+            this.algo = new ConcurrentDoubleAnchorTraversal(graph, savePathInMem, null, firstConcatenate, secondConcatenate, reduceType);
         else
-            algo = new DoubleAnchorTraversal(graph, savePathInMem, null, firstConcatenate, secondConcatenate, reduceType);
+            this.algo = new DoubleAnchorTraversal(graph, savePathInMem, null, firstConcatenate, secondConcatenate, reduceType);
 
         selectAnchorType(graph);
-
     }
 
     private void addHybrid(CompressedGraph graph, ConcatenateType concatenateType) {
@@ -96,8 +95,8 @@ class AlgoExecutor {
         System.out.println("\n" +
                 "Do you want to run it concurrently?(y/n)");
         String input = sc.nextLine();
-        if(input.equals("y")) algo = new ConcurrentAnchorTraversal(graph, savePathInMem, null, concatenateType);
-        else algo = new AnchorGraphTraversal(graph, savePathInMem, null,concatenateType );
+        if(input.equals("y")) this.algo = new ConcurrentAnchorTraversal(graph, savePathInMem, null, concatenateType);
+        else this.algo = new AnchorGraphTraversal(graph, savePathInMem, null,concatenateType );
 
         selectAnchorType(graph);
     }
@@ -121,14 +120,14 @@ class AlgoExecutor {
 
 
         while (true) {
-            System.out.println("\n- Please enter the number of anchors in between:");
+            System.out.println("\n- Please enter the number of anchors:");
             numAnchor = Integer.parseInt(sc.nextLine());
             if (numAnchor + graph.getStartPointNum() <= graph.getNumVertex()) break;
             System.out.println("WARNING: The number of anchor nodes is larger than the number of nodes in graph, try again.\n\n");
         }
 
-        ((AnchorGraphTraversal) algo).setAnchorNodes(
-                findAnchor(algo.getGraph(), selection));
+        ((AnchorGraphTraversal) this.algo).setAnchorNodes(
+                findAnchor(this.algo.getGraph(), selection));
     }
 
     private int[] findAnchor(CompressedGraph graph, AnchorType selection) {
@@ -152,37 +151,39 @@ class AlgoExecutor {
 
     }
 
-    void runAlgo() {
+    void execute() {
 
-        System.out.println("Algorithm to execute: " + algo.getClass().getName());
-        boolean isDoubleConcatenate = algo.getClass().getName().contains("Double");
+        System.out.println("Algorithm to execute: " + this.algo.getClass().getName());
+        boolean isDoubleConcatenate = this.algo.getClass().getName().contains("Double");
 
-        String concurrentPrefix = (algo.getClass().getName().contains("Concurrent") ? "Concurrent-" : "");
+        String concurrentPrefix = (this.algo.getClass().getName().contains("Concurrent") ? "Concurrent-" : "");
 
         String doublePrefix = (isDoubleConcatenate ?
-            ((DoubleAnchorTraversal)algo).firstLevel +
-                "-"+((DoubleAnchorTraversal)algo).secondLevel+ "-":"")
+            ((DoubleAnchorTraversal)this.algo).firstLevel +
+                "-"+((DoubleAnchorTraversal)this.algo).secondLevel+ "-":"")
                 .replaceAll("AnchorType.", "");
 
         String concatenatePrefix = "";
         if(selection != null){
             if(isDoubleConcatenate) {
-                concatenatePrefix ="-" +  ((DoubleAnchorTraversal)algo).firstLevel + "" +  ((DoubleAnchorTraversal)algo).secondLevel;
+                concatenatePrefix ="-" +  ((DoubleAnchorTraversal)this.algo).firstLevel + "" +  ((DoubleAnchorTraversal)this.algo).secondLevel;
             }
             else {
-                concatenatePrefix = "-" + ((AnchorGraphTraversal)algo).concatenateType;
+                concatenatePrefix = "-" + ((AnchorGraphTraversal)this.algo).concatenateType;
             }
             concatenatePrefix.replace("ConcatenateType.", "");
         }
 
 
         String fileName = "OutputFiles/result/timeResults/" + "graph-" +
-                algo.getGraph().getNumVertex() + "-" +
-                algo.traversalType +
-               doublePrefix   + concurrentPrefix +
-                selection +concatenatePrefix +  "-" + new Date().toString() +  ".txt";
+                this.algo.getGraph().getNumVertex() + "-" +
+                this.algo.traversalType + "-" +
+                doublePrefix + concurrentPrefix +
+                selection + concatenatePrefix +  "-" + new Date().toString() +  ".txt";
 
-        if (selection!= null && algo.getGraph().getNumVertex() > 100) {
+
+        // for anchor node algorithms
+        if (selection!= null && this.algo.getGraph().getNumVertex() > 100) {
             System.out.println("Do you want to run range of anchor node num?(y/n)");
             int upper;
 
@@ -198,14 +199,14 @@ class AlgoExecutor {
                 }
                 // get the closest int of numAnchor as start point
                 numAnchor = numAnchor / 5 * 5;
-                if (upper < numAnchor) upper = algo.getGraph().getNumVertex() / 10 + 10;
+                if (upper < numAnchor) upper = this.algo.getGraph().getNumVertex() / 10 + 10;
 
                 for (int i = numAnchor; i <= upper; i += 5) {
                     // set new Anchor num
                     numAnchor = i;
-                    ((AnchorGraphTraversal) algo).setAnchorNodes(
-                            findAnchor(algo.getGraph(), selection));
-                    runOneAlgo();
+                    ((AnchorGraphTraversal) this.algo).setAnchorNodes(
+                            findAnchor(this.algo.getGraph(), selection));
+                    runAlgo();
                     writeTimeResult(fileName);
 
                     System.out.println("\n-- Anchor nodes " + i + " finished!\n\n" +
@@ -213,28 +214,27 @@ class AlgoExecutor {
                 }
                 return;
             }
-
         }
-        runOneAlgo();
+        runAlgo();
         writeTimeResult(fileName);
     }
 
 
     public void cleanGarbage(){
         System.gc();
-        if(algo.getClass().getName().contains("ConcurrentDouble"))
-            ((ConcurrentDoubleAnchorTraversal)algo).pool.shutdownNow();
-        else if(algo.getClass().getName().contains("ConcurrentAnchor"))
-            ((ConcurrentAnchorTraversal)algo).pool.shutdownNow();
+        if(this.algo.getClass().getName().contains("ConcurrentDouble"))
+            ((ConcurrentDoubleAnchorTraversal)this.algo).pool.shutdownNow();
+        else if(this.algo.getClass().getName().contains("ConcurrentAnchor"))
+            ((ConcurrentAnchorTraversal)this.algo).pool.shutdownNow();
     }
 
-    private void runOneAlgo() {
+    private void runAlgo() {
         average = 0;
         for (int i = 0; i < numRun; i++) {
-            algo.execute();
+            this.algo.execute();
 
-            average += algo.timeElapsed;
-            runTimes[i] = algo.timeElapsed;
+            average += this.algo.timeElapsed;
+            runTimes[i] = this.algo.timeElapsed;
             System.out.println("run: " + runTimes[i]);
             System.gc();
         }
@@ -245,17 +245,24 @@ class AlgoExecutor {
     }
 
     private void writeTimeResult(String fileName) {
-        File file = new File(fileName);
+        File file = new File(fileName.replace(":", "-"));
 
         try {
-            if (!file.exists()) if (!file.createNewFile()) return;
+            if(!file.exists()) {
+                if(!file.createNewFile()) {
+                    return;
+                }
+            }
 
             FileWriter fw = new FileWriter(file, true);
 
-            if (numAnchor != 0)
+            if(numAnchor != 0) {
                 fw.write("\n" + numAnchor + "," + average / numRun / Math.pow(10, 9));
+            }
             else
+            {
                 fw.write("Average time(s) running " + numRun + " times: " + average / numRun / Math.pow(10, 9));
+            }
 
             fw.close();
 
@@ -269,12 +276,10 @@ class AlgoExecutor {
     }
 
     void savePathsResult() {
-        algo.saveResults();
+        this.algo.saveResults();
     }
 
     void printPaths() {
-        algo.printPaths();
+        this.algo.printPaths();
     }
-
-
 }

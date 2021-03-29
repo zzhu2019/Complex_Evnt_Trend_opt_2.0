@@ -170,7 +170,7 @@ public class Main {
 
         System.out.println("Start executing...");
 
-        executor.runAlgo();
+        executor.execute();
 
         executor.cleanGarbage();
 
@@ -191,8 +191,10 @@ public class Main {
             if (sc.nextLine().equals("y")) {
                 executor.printPaths();
             }
-        } else
+        }
+        else {
             System.out.println("Warning: No results saved.\n");
+        }
 
 
     }

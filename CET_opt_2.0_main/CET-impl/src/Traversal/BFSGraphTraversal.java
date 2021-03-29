@@ -22,12 +22,14 @@ public class BFSGraphTraversal extends GraphTraversal {
             pathNum++;
             return;
         }
+
         while (!queue.isEmpty()) {
             IntArray currentPath = queue.poll();
             int cur = currentPath.getLast();
             for (int i = graph.rowIndex[cur]; i < graph.rowIndex[cur + 1]; i++) {
                 int neighbour = graph.colIndex[i];
 
+                // FIXME: java heap space out of memory error when the computation
                 IntArray newArray = new IntArray(currentPath);
                 newArray.add(neighbour);
                 if (graph.endContains(neighbour)) {
