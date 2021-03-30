@@ -59,7 +59,6 @@ public abstract class GraphTraversal {
             }
 
             traversal(start);
-            System.out.println("----Node start finished----");
         }
         long endTime = System.nanoTime();
         timeElapsed = endTime - startTime;

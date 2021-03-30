@@ -102,18 +102,20 @@ public class DAGSmith {
     //Actual Generate methods
 
     private boolean[][] generateRandomMatrix(int jobCount, int frequency) {
-        if (log())
+        if(log()) {
             System.out.println("Generating Matrix...");
+        }
+
         boolean[][] result = new boolean[jobCount][jobCount];
-        for (int i = 0; i < jobCount; i++) {
+
+        for(int i = 0; i < jobCount; i++) {
             // try to see if it's connected to the graph at all
-            for (int j = 0; j < jobCount; j++) {
+            for(int j = 0; j < jobCount; j++) {
                 if (i != j) result[i][j] = random(frequency);
 
             }
         }
-        DAGTools dagTools = new DAGTools();
-//        result = dagTools.connect(result, frequency);
+
         return result;
     }
 

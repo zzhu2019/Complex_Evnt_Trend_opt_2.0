@@ -32,9 +32,9 @@ public class Main {
             // it can be read from system input as well.
         else {
             System.out.println("""
-                    ------------------------------------------------------------
-                    - Do you want to enter an existing config file path? (y/n) -
-                    ------------------------------------------------------------""");
+                    -------------------------------------------------------------
+                    -  Do you want to enter an existing config file path? (y/n) -
+                    -------------------------------------------------------------""");
             input = sc.nextLine();
             if (input.equalsIgnoreCase("n")) {
                 graphBuilder.random = true;
@@ -43,9 +43,10 @@ public class Main {
                 while (true) {
                     try {
                         numNodes = Integer.parseInt(sc.nextLine());
-                        break;
+                        if(numNodes > 0) break;
+                        else System.out.println("Not a valid number!");
                     } catch (Exception e) {
-                        System.out.println("Not a number!");
+                        System.out.println("Not a valid number!");
                     }
                 }
 
@@ -73,9 +74,10 @@ public class Main {
                 while (true) {
                     try {
                         graphBuilder.frequency = Double.parseDouble(sc.nextLine());
-                        break;
+                        if(graphBuilder.frequency > 0) break;
+                        System.out.println(graphBuilder.frequency);
                     } catch (Exception e) {
-                        System.out.println("Not a number, try again!");
+                        System.out.println("Not a valid number, try again!");
                     }
                 }
 
@@ -107,15 +109,18 @@ public class Main {
 
         printDegreeNumVSNode(graph);
 
-//        System.out.println("Terminate the program? (y/n)");
-//        if(sc.nextLine().equals("y")) {
-//            return;   // INFO end the program here for graph reprogram
-//        }
+        // end the program for testing the graph generating process
+        System.out.println("Terminate the program? (y/n)");
+        if(sc.nextLine().equals("y")) {
+            return;
+        }
 
         // Create output dir
-        if (!new File("OutputFiles/result/timeResults").exists())
-        {
-            new File("OutputFiles/result/timeResults").mkdirs();
+        File output = new File("OutputFiles/result/timeResults");
+        if (!output.exists()) {
+            if(!output.mkdirs()) {
+                System.out.println("Cannot create OutputFiles/result/timeResults.");
+            }
         }
 
         System.out.println("""
@@ -139,20 +144,20 @@ public class Main {
             }
         }
 
-
+        // choose the algo
         while (true) {
             System.out.println("""
-                    ------------------------------------------------
-                    Please add the algorithm to process the graph:
-                     -   0. Finish choosing (exit program)
-                     -   1. Normal BFS
-                     -   2. Normal DFS
-                     -   3. Anchor (DFS concatenate)
-                     -   4. Anchor (BFS concatenate)
-                     -   5. M_CET
-                     -   6. T_CET
-                     -   7. Anchor (Double leveling)
-                    """);
+                    -------------------------------------------------------------
+                    - Please add the algorithm to process the graph:            -
+                    -   0. Finish choosing (exit program)                       -
+                    -   1. Normal BFS                                           -
+                    -   2. Normal DFS                                           -
+                    -   3. Anchor (DFS concatenate)                             -
+                    -   4. Anchor (BFS concatenate)                             -
+                    -   5. M_CET                                                -
+                    -   6. T_CET                                                -
+                    -   7. Anchor (Double leveling)                             -
+                    -------------------------------------------------------------""");
 
             input = sc.nextLine();
 
@@ -218,38 +223,38 @@ public class Main {
         degreeNum.clear();
         System.out.println("-------------------------------------------------------------");
 
-        System.out.println("Nodes inside the DAG: ");
-        TreeMap<Integer, Integer> interDegreeNum = new TreeMap<>(Collections.reverseOrder());
-        for(int i = 0; i < graph.getNumVertex(); i ++) {
-            if(!graph.startContains(i) && !graph.endContains(i)) {                              // in-DAG node
-                int degree = graph.getNumDegree(i);
-                if(interDegreeNum.get(degree) == null) {
-                    interDegreeNum.put(degree, 1);
-                }
-                else {
-                    interDegreeNum.replace(degree, interDegreeNum.get(degree) + 1);
-                }
-            }
-        }
-        System.out.println("Node Degree : The Number of Nodes");
-        printDegrees(interDegreeNum);
-        System.out.println("-------------------------------------------------------------");
+//        System.out.println("Nodes inside the DAG: ");
+//        TreeMap<Integer, Integer> interDegreeNum = new TreeMap<>(Collections.reverseOrder());
+//        for(int i = 0; i < graph.getNumVertex(); i ++) {
+//            if(!graph.startContains(i) && !graph.endContains(i)) {                              // in-DAG node
+//                int degree = graph.getNumDegree(i);
+//                if(interDegreeNum.get(degree) == null) {
+//                    interDegreeNum.put(degree, 1);
+//                }
+//                else {
+//                    interDegreeNum.replace(degree, interDegreeNum.get(degree) + 1);
+//                }
+//            }
+//        }
+//        System.out.println("Node Degree : The Number of Nodes");
+//        printDegrees(interDegreeNum);
+//        System.out.println("-------------------------------------------------------------");
 
-        System.out.println("Nodes' IN degree: ");
-        for(int i = 0; i < graph.getNumVertex(); i ++) {
-            int degree = graph.getIndegree(i);
-            if(degreeNum.get(degree) == null) {
-                degreeNum.put(degree, 1);
-            }
-            else {
-                degreeNum.replace(degree, degreeNum.get(degree) + 1);
-            }
-        }
-        System.out.println("Node Degree : The Number of Nodes");
-        printDegrees(degreeNum);
-        System.out.println("-------------------------------------------------------------");
+//        System.out.println("Nodes' IN degree: ");
+//        for(int i = 0; i < graph.getNumVertex(); i ++) {
+//            int degree = graph.getIndegree(i);
+//            if(degreeNum.get(degree) == null) {
+//                degreeNum.put(degree, 1);
+//            }
+//            else {
+//                degreeNum.replace(degree, degreeNum.get(degree) + 1);
+//            }
+//        }
+//        System.out.println("Node Degree : The Number of Nodes");
+//        printDegrees(degreeNum);
+//        System.out.println("-------------------------------------------------------------");
 
-        // -----what the f**k is this????-----
+        //question----what the f**k is this????-----
 
 //        System.out.println("\n\n\nIncoming degree nodes: ");
 //        interDegreeNum.clear();

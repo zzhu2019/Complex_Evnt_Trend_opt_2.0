@@ -58,7 +58,7 @@ public class GraphBuilder {
 
         DAGSmith smith = new DAGSmith();
         //generating adjacency matrix
-        boolean[][] dag = smith.generateDAGMatrix(num, getFrequency(num));
+        boolean[][] dag = smith.generateDAGMatrix(num, getFrequency(num));      // num*frequency
         StringBuilder sb = new StringBuilder("Grid\n" + num + "\n");
         sb.append(DAGTools.printDAG(dag));
         System.out.println(sb.toString());

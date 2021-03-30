@@ -6,7 +6,6 @@ import java.util.ArrayList;
  * A simple node to be used in a tree structure. This class supports the method
  * DAGFunctions.removeSelfDependencies()
  *
- * @param <T>
  * @author Crackers
  */
 class TreeNode {
@@ -33,8 +32,11 @@ class TreeNode {
             return children.remove(0);
     }
 
+    /**
+     * shuffle the order of children
+     */
     public void shuffle() {
-        for (int i = 0; i < this.children.size() * 4; i++) {
+        for(int i = 0; i < this.children.size() * 4; i++) {
             this.children.add(this.children.remove(((int) (Math.random() * this.children.size()))));
         }
     }

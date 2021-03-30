@@ -8,10 +8,10 @@ class DAGFunctions {
 
     public static boolean log = true;
 
-    public static boolean[][] resolveDependancies(boolean[][] matrix) {
+    public static boolean[][] resolveDependencies(boolean[][] matrix) {
         boolean[][] result = new boolean[matrix.length][matrix[0].length];
-        for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix[0].length; j++) {
+        for(int i = 0; i < matrix.length; i++) {
+            for(int j = 0; j < matrix[0].length; j++) {
                 result[i][j] = matrix[i][j];
             }
         }
@@ -47,7 +47,7 @@ class DAGFunctions {
     public static void integrityCheck(boolean[][] matrix) throws DAGSelfDependent {
         if (log)
             System.out.print("Checking Integrity of DAG File...");
-        boolean[][] temp = DAGFunctions.resolveDependancies(matrix);
+        boolean[][] temp = DAGFunctions.resolveDependencies(matrix);
         if (temp.length > 0) {
             for (int i = 0; i < temp.length && i < temp[0].length; i++) {
                 //if job depends on self
@@ -81,33 +81,30 @@ class DAGFunctions {
         return matrix;
     }
 
+
     public static boolean[][] removeSelfDependencies(boolean[][] matrix) {
-        TreeNode[] modules = DAGFunctions.generateTreeFromGrid(matrix);
-        modules = DAGFunctions.shuffleTree(modules);
-        if (modules == null) return null;
+        TreeNode[] modules = shuffleTree(generateTreeFromGrid(matrix));
         return cleanTree(modules, matrix);
     }
 
 
     public static ArrayList<int[]> removeSelfDependencies(ArrayList<int[]> pairs, int jobCount) {
-        TreeNode[] modules = DAGFunctions.generateTreeFromPairs(pairs, jobCount);
-        modules = shuffleTree(modules);
-        if (modules == null) return null;
+        TreeNode[] modules = shuffleTree(generateTreeFromPairs(pairs, jobCount));
         return cleanTree(modules, pairs);
     }
 
     public static ArrayList<Integer>[] removeSelfDependencies(ArrayList<Integer>[] lists) {
-        TreeNode[] modules = DAGFunctions.generateTreeFromLists(lists);
-        modules = shuffleTree(modules);
-        if (modules == null) return null;
+        TreeNode[] modules = shuffleTree(generateTreeFromLists(lists));
         return cleanTree(modules, lists);
     }
 
     private static TreeNode[] shuffleTree(TreeNode[] tree) {
-        if (log)
+        if(log)
+        {
             System.out.println("Shuffling Tree References...");
-        for (int i = 0; i < tree.length; i++) {
-            tree[i].shuffle();
+        }
+        for(TreeNode treeNode : tree) {
+            treeNode.shuffle();
         }
         return tree;
     }
@@ -116,35 +113,41 @@ class DAGFunctions {
      * Removes any circular references from a dependency adjacency matrix using
      * its tree representation.
      *
-     * @return A cleaned tree data structure
+     * @param tree the TreeNode Array with shuffled children
+     * @param matrix original generated matrix
+     * @return a DAG
      */
     private static boolean[][] cleanTree(TreeNode[] tree, boolean[][] matrix) {
-        if (log)
+        if(log) {
             System.out.println("Removing Self Dependencies Using Tree...");
+        }
         //Keeps track of which nodes have been checked for circular references
         boolean[] checked = new boolean[tree.length];
 
         //Keeps track of the path taken to get to a node
-        Stack<TreeNode> path = new Stack<TreeNode>();
-        for (int j = 0; j < checked.length; j++) {
-            if (!checked[j]) {
+        Stack<TreeNode> path = new Stack<>();
+        for(int j = 0; j < checked.length; j++) {
+            if(!checked[j]) {
                 path.add(tree[j]);
-                while (path.size() != 0) {
+                while(path.size() != 0) {
                     //Get the next step in the path
                     TreeNode next = path.peek().getNext();
-                    if (next != null) {
+                    if(next != null) {
                         //If the node is already in the path, sever the reference
                         //This is/else loop balances the table
-                        if (path.contains(next)) {
+                        if(path.contains(next)) {
                             matrix[next.id][path.peek().id] = false;
-                        } else {
+                        }
+                        else {
                             //Only do this step if node has not been checked already
-                            if (checked[next.id])
+                            if(checked[next.id]) {
                                 continue;
+                            }
                             //Add it to the current path
                             path.push(next);
                         }
-                    } else {
+                    }
+                    else {
                         //If we have reached the end of this branch, traverse back up
                         checked[path.pop().id] = true;
                     }
@@ -233,31 +236,29 @@ class DAGFunctions {
     }
 
     /**
-     * Generates a tree datastructure that represents the workflow of modules
+     * Generates a tree data structure that represents the workflow of modules
      * derived from a dependency adjacency matrix.
      *
-     * @param matrix
-     * @return
+     * @param matrix a  matrix
+     * @return a TreeNode object that contains parent-child relationship
      */
     private static TreeNode[] generateTreeFromGrid(boolean[][] matrix) {
-        if (log) System.out.println("Building Tree Data Structure...");
-        //Get the number of nodes we will be generating
+        if(log) {
+            System.out.println("Building Tree Data Structure...");
+        }
+
         int size = matrix.length;
-        if (matrix.length > 0)
-            size = (size > matrix[0].length) ? size : matrix[0].length;
-        else
-            return null;
 
         //Generate array of nodes
         TreeNode[] result = new TreeNode[size];
-        for (int i = 0; i < result.length; i++) {
+        for(int i = 0; i < result.length; i++) {
             result[i] = new TreeNode(i);
         }
 
-        //Populate array of nodes
-        for (int j = 0; j < matrix[0].length; j++) {
-            for (int i = 0; i < matrix.length; i++) {
-                if (matrix[i][j]) {
+        //Go through array of nodes, left-down direction
+        for(int j = 0; j < matrix.length; j++) {
+            for(int i = 0; i < matrix[0].length; i++) {
+                if(matrix[j][i]) {
                     result[j].children.add(result[i]);
                 }
             }
@@ -267,13 +268,15 @@ class DAGFunctions {
 
     private static TreeNode[] generateTreeFromPairs(ArrayList<int[]> pairs, int jobCount) {
 
-        if (log) System.out.println("Building Tree Data Structure from compressed pairs...");
+        if(log) {
+            System.out.println("Building Tree Data Structure from compressed pairs...");
+        }
 
         TreeNode[] treeNodes = new TreeNode[jobCount];
-        for (int i = 0; i < treeNodes.length; i++) {
+        for(int i = 0; i < treeNodes.length; i++) {
             treeNodes[i] = new TreeNode(i);
         }
-        for (int i = 0; i < pairs.size(); i++) {
+        for(int i = 0; i < pairs.size(); i++) {
             int id = pairs.get(i)[0];
             int neighbour = pairs.get(i)[1];
             treeNodes[id].children.add(treeNodes[neighbour]);
@@ -311,25 +314,26 @@ class DAGFunctions {
         depends.pop();
     }
 
-    public static void printMatrix(boolean[][] matrix) {
-        if (log)
-            System.out.println("Generating String For STD Output...");
-        StringBuilder result = new StringBuilder(matrix.length * (matrix[0].length * 3));
-        for (int i = 0; i < matrix.length; i++) {
-            result.append("|");
-            for (int j = 0; j < matrix[0].length; j++) {
-                char c;
-                if (matrix[i][j])
-                    c = '1';
-                else
-                    c = '0';
-                result.append(c + "|");
-            }
-            result.append("\n");
-        }
 
-        System.out.println(result);
-    }
+//    public static void printMatrix(boolean[][] matrix) {
+//        if (log)
+//            System.out.println("Generating String For STD Output...");
+//        StringBuilder result = new StringBuilder(matrix.length * (matrix[0].length * 3));
+//        for (int i = 0; i < matrix.length; i++) {
+//            result.append("|");
+//            for (int j = 0; j < matrix[0].length; j++) {
+//                char c;
+//                if (matrix[i][j])
+//                    c = '1';
+//                else
+//                    c = '0';
+//                result.append(c + "|");
+//            }
+//            result.append("\n");
+//        }
+//
+//        System.out.println(result);
+//    }
 
     private static class IntegerStack extends Stack<Integer> {
 
@@ -339,7 +343,7 @@ class DAGFunctions {
         public boolean contains(Object o) {
             Integer value = (Integer) o;
             Iterator<Integer> it = this.iterator();
-            while (it.hasNext()) {
+            while(it.hasNext()) {
                 if (it.next().intValue() == value.intValue())
                     return true;
             }

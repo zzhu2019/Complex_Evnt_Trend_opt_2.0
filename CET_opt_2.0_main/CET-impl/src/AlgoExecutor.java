@@ -43,7 +43,8 @@ class AlgoExecutor {
      * 6. T_CET
      * 7. Anchor (Double leveling)
      *
-     * @param selection of algo
+     * @param selection selection of algo
+     * @param graph graph
      */
     void useAlgo(int selection, CompressedGraph graph) {
 
