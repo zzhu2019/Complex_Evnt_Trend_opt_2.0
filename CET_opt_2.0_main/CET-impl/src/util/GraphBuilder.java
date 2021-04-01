@@ -15,7 +15,7 @@ public class GraphBuilder {
     public boolean saveFile = false;
     public GraphType type;
 
-    private GraphGenerator graphGenerator;
+    private final GraphGenerator graphGenerator;
     public double frequency;
 
 
@@ -62,8 +62,7 @@ public class GraphBuilder {
         StringBuilder sb = new StringBuilder("Grid\n" + num + "\n");
         sb.append(DAGTools.printDAG(dag));
         System.out.println(sb.toString());
-        if (saveFile) {
-
+        if(saveFile) {
             saveToFile(sb.toString().trim(), num);
         }
         return graphGenerator.buildGraph(dag);

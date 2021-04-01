@@ -121,10 +121,10 @@ class DAGFunctions {
         if(log) {
             System.out.println("Removing Self Dependencies Using Tree...");
         }
-        //Keeps track of which nodes have been checked for circular references
+        // Keep track of which nodes have been checked for circular references
         boolean[] checked = new boolean[tree.length];
 
-        //Keeps track of the path taken to get to a node
+        // Keep track of the path taken to get to a node
         Stack<TreeNode> path = new Stack<>();
         for(int j = 0; j < checked.length; j++) {
             if(!checked[j]) {
@@ -133,13 +133,14 @@ class DAGFunctions {
                     //Get the next step in the path
                     TreeNode next = path.peek().getNext();
                     if(next != null) {
-                        //If the node is already in the path, sever the reference
+                        //If the node has already been in the path, cut the circular reference
                         //This is/else loop balances the table
                         if(path.contains(next)) {
-                            matrix[next.id][path.peek().id] = false;
+//                            matrix[next.id][path.peek().id] = false;          // original method
+                            matrix[path.peek().id][next.id] = false;
                         }
                         else {
-                            //Only do this step if node has not been checked already
+                            // Only do this step if node has not been checked already
                             if(checked[next.id]) {
                                 continue;
                             }

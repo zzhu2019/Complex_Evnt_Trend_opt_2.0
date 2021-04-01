@@ -28,35 +28,31 @@ public class Main {
         Scanner sc = new Scanner(System.in);
 
         // Read graph type: either random or a file path
-        if (args.length == 1) graph = graphBuilder.generateGraphFile(args[0]);
-            // it can be read from system input as well.
+        if(args.length == 1) {
+            graph = graphBuilder.generateGraphFile(args[0]);
+        }
+        // command line read a graph or create a new graph
         else {
             System.out.println("""
                     -------------------------------------------------------------
                     -  Do you want to enter an existing config file path? (y/n) -
                     -------------------------------------------------------------""");
             input = sc.nextLine();
-            if (input.equalsIgnoreCase("n")) {
+            if(input.equalsIgnoreCase("n")) {
                 graphBuilder.random = true;
 
                 System.out.println("- Number of nodes for the graph:");
-                while (true) {
-                    try {
-                        numNodes = Integer.parseInt(sc.nextLine());
-                        if(numNodes > 0) break;
-                        else System.out.println("Not a valid number!");
-                    } catch (Exception e) {
-                        System.out.println("Not a valid number!");
-                    }
-                }
+                numNodes = setIntParameter();
 
                 System.out.println("""
-                        Choose graph output type:
-                          1. Grid
-                          2. Pairs
-                          3. Lists
-                          4. CSR(Compressed sparse rwo)
-                        NOTE: Other selection will go to default -- Grid format""");
+                        -------------------------------------------------------------
+                        - Choose graph output type:                                 -
+                        -   1. Grid                                                 -
+                        -   2. Pairs                                                -
+                        -   3. Lists                                                -
+                        -   4. CSR(Compressed Sparse Row)                           -
+                        NOTE: Other selection will go to default -- Grid format     -
+                        -------------------------------------------------------------""");
 
                 input = sc.nextLine();
 
@@ -71,27 +67,19 @@ public class Main {
                 }
 
                 System.out.println("Desired frequency: (1/[(F*N)+1])");
-                while (true) {
-                    try {
-                        graphBuilder.frequency = Double.parseDouble(sc.nextLine());
-                        if(graphBuilder.frequency > 0) break;
-                        System.out.println(graphBuilder.frequency);
-                    } catch (Exception e) {
-                        System.out.println("Not a valid number, try again!");
-                    }
-                }
-
+                graphBuilder.frequency = setDoubleParameter();
+//                graphBuilder.frequency = sc.nextDouble();
 
                 graph = graphBuilder.generateRandomGraph(numNodes);
 
             }
             else if(input.equalsIgnoreCase("y")) {
-                while (true) {
+                while(true) {
                     System.out.println("Please specify file path: ");
                     input = sc.nextLine();
 
-                    if (input.equalsIgnoreCase("exit")) return;
-                    if (new File(input).exists()) break;
+                    if(input.equalsIgnoreCase("exit")) return;
+                    if(new File(input).exists()) break;
 
                     System.out.println("File doesn't exist, try again, or type \"exit\" to exit the program");
                 }
@@ -109,7 +97,7 @@ public class Main {
 
         printDegreeNumVSNode(graph);
 
-        // end the program for testing the graph generating process
+        // end the program for testing the graph generator
         System.out.println("Terminate the program? (y/n)");
         if(sc.nextLine().equals("y")) {
             return;
@@ -126,49 +114,40 @@ public class Main {
         System.out.println("""
                 - Output folders created
                       ...
-
                 """);
 
         System.out.print("Please enter number of run you want for the algorithm: \n");
 
         System.gc();
-        AlgoExecutor executor;
 
-        // looping until a valid number is entered
-        while (true) {
-            try {
-                executor = new AlgoExecutor(Integer.parseInt(sc.nextLine()));
-                break;
-            } catch (Exception e) {
-                System.out.println("Not a number!");
-            }
-        }
+        // Create an executor object: algorithm executor
+        AlgoExecutor executor = new AlgoExecutor(setIntParameter());
 
         // choose the algo
         while (true) {
             System.out.println("""
                     -------------------------------------------------------------
                     - Please add the algorithm to process the graph:            -
-                    -   0. Finish choosing (exit program)                       -
-                    -   1. Normal BFS                                           -
-                    -   2. Normal DFS                                           -
-                    -   3. Anchor (DFS concatenate)                             -
-                    -   4. Anchor (BFS concatenate)                             -
-                    -   5. M_CET                                                -
-                    -   6. T_CET                                                -
-                    -   7. Anchor (Double leveling)                             -
+                    -   99. Finish choosing (exit program)                      -
+                    -   1.  Normal BFS                                          -
+                    -   2.  Normal DFS                                          -
+                    -   3.  Anchor (DFS concatenate)                            -
+                    -   4.  Anchor (BFS concatenate)                            -
+                    -   5.  M_CET                                               -
+                    -   6.  T_CET                                               -
+                    -   7.  Anchor (Double leveling)                            -
                     -------------------------------------------------------------""");
 
-            input = sc.nextLine();
+            int algoIndex = setIntParameter();
 
-            if (input.equals("")) continue;
+            if(algoIndex == 99) return;
 
-            if (input.equals("0")) return;
+            if(algoIndex > 7) continue;
 
             System.out.println("\n\n- Do you want to save result to run time memory? (y/n)");
             executor.setSavePathInMem(sc.nextLine().equalsIgnoreCase("y"));
 
-            executor.useAlgo(Integer.parseInt(input), graph);
+            executor.useAlgo(algoIndex, graph);
             break;
         }
 
@@ -282,6 +261,43 @@ public class Main {
         }
     }
 
+    /**
+     * set a int parameter positive, usually a parameter for graph generator
+     * @return a positive value
+     */
+    private static int setIntParameter( ) {
+        int value;
+        Scanner sc = new Scanner(System.in);
+
+        while(true) {
+            try{
+                value = Integer.parseInt(sc.nextLine());
+                if(value > 0) break;
+                else System.out.println("Not a valid number!");
+            }
+            catch(Exception e) {
+                System.out.println("Not a number!");
+            }
+        }
+        return value;
+    }
+
+    private static double setDoubleParameter( ) {
+        double value;
+        Scanner sc = new Scanner(System.in);
+
+        while(true) {
+            try{
+                value = sc.nextDouble();
+                if(value > 0) break;
+                else System.out.println("Not a valid number!");
+            }
+            catch(Exception e) {
+                System.out.println("Not a valid number!");
+            }
+        }
+        return value;
+    }
 
 }
 

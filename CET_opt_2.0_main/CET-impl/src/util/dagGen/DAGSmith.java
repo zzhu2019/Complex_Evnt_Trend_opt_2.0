@@ -54,9 +54,8 @@ public class DAGSmith {
      * @return The generated graph.
      */
     public boolean[][] generateDAGMatrix(int jobCount, int frequency) {
-        boolean[][] matrix = this.generateRandomMatrix(jobCount, frequency);
-        matrix = DAGFunctions.removeSelfDependencies(matrix);
-        return matrix;
+        boolean[][] matrix = generateRandomMatrix(jobCount, frequency);
+        return DAGFunctions.removeSelfDependencies(matrix);
     }
 
     public CompressedGraph generateDAGCSR(int jobCount, int frequency){
