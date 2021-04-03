@@ -17,6 +17,7 @@ public class GraphBuilder {
 
     private final GraphGenerator graphGenerator;
     public double frequency;
+    private int maxDegree;
 
 
     public GraphBuilder() {
@@ -43,7 +44,6 @@ public class GraphBuilder {
 
         if (type.equals(GraphType.CSR)) return generateRandomCSRGraph(numNodes);
 
-
         return null;
 
     }
@@ -58,7 +58,7 @@ public class GraphBuilder {
 
         DAGSmith smith = new DAGSmith();
         //generating adjacency matrix
-        boolean[][] dag = smith.generateDAGMatrix(num, getFrequency(num));      // num*frequency
+        boolean[][] dag = smith.generateDAGMatrix(num, getFrequency(num), this.maxDegree);
         StringBuilder sb = new StringBuilder("Grid\n" + num + "\n");
         sb.append(DAGTools.printDAG(dag));
         System.out.println(sb.toString());
@@ -66,7 +66,6 @@ public class GraphBuilder {
             saveToFile(sb.toString().trim(), num);
         }
         return graphGenerator.buildGraph(dag);
-
     }
 
     private CompressedGraph generateRandomCompressPairGraph(int num) {
@@ -114,7 +113,7 @@ public class GraphBuilder {
         DAGSmith smith = new DAGSmith();
 
         //generating CSR form graph
-        CompressedGraph dag = smith.generateDAGCSR(num, getFrequency(num));
+        CompressedGraph dag = smith.generateDAGCSR(num, getFrequency(num), this.maxDegree);
         StringBuilder sb = new StringBuilder("CSR\n" + num + "\ncol:");
         for (int i : dag.getColIndex()) {
             sb.append(" ").append(i);
@@ -168,5 +167,5 @@ public class GraphBuilder {
         return fileGraphParser.readGraph(path);
     }
 
-
+    public void setMaxDegree(int val) { this.maxDegree = val; }
 }

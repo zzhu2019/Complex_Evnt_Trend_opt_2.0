@@ -120,7 +120,7 @@ class AlgoExecutor {
         if(input.equals("4")) selection = AnchorType.SMALLEST_DEGREE;
 
 
-        while (true) {
+        while(true) {
             System.out.println("\n- Please enter the number of anchors:");
             numAnchor = Integer.parseInt(sc.nextLine());
             if (numAnchor + graph.getStartPointNum() <= graph.getNumVertex()) break;
@@ -167,7 +167,8 @@ class AlgoExecutor {
         String concatenatePrefix = "";
         if(selection != null){
             if(isDoubleConcatenate) {
-                concatenatePrefix ="-" +  ((DoubleAnchorTraversal)this.algo).firstLevel + "" +  ((DoubleAnchorTraversal)this.algo).secondLevel;
+                concatenatePrefix ="-" +  ((DoubleAnchorTraversal)this.algo).firstLevel + ""
+                        + ((DoubleAnchorTraversal)this.algo).secondLevel;
             }
             else {
                 concatenatePrefix = "-" + ((AnchorGraphTraversal)this.algo).concatenateType;
@@ -184,7 +185,7 @@ class AlgoExecutor {
 
 
         // for anchor node algorithms
-        if (selection!= null && this.algo.getGraph().getNumVertex() > 100) {
+        if(selection!= null && this.algo.getGraph().getNumVertex() > 100) {
             System.out.println("Do you want to run range of anchor node num?(y/n)");
             int upper;
 
@@ -248,7 +249,7 @@ class AlgoExecutor {
     private void writeTimeResult(String fileName) {
         File file = new File(fileName.replace(":", "-"));
 
-        try {
+        try{
             if(!file.exists()) {
                 if(!file.createNewFile()) {
                     return;
@@ -260,20 +261,20 @@ class AlgoExecutor {
             if(numAnchor != 0) {
                 fw.write("\n" + numAnchor + "," + average / numRun / Math.pow(10, 9));
             }
-            else
-            {
+            else {
                 fw.write("Average time(s) running " + numRun + " times: " + average / numRun / Math.pow(10, 9));
             }
 
             fw.close();
 
-        } catch (IOException e) {
+        }
+        catch(IOException e) {
             e.printStackTrace();
         }
     }
 
     boolean isSavePathInMem() {
-        return savePathInMem;
+        return this.savePathInMem;
     }
 
     void savePathsResult() {

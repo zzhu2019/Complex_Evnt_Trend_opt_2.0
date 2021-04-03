@@ -21,8 +21,8 @@ public abstract class GraphTraversal {
         this.graph = graph;
         this.saveToMem = saveToMem;
         this.validPaths = new ArrayList<>();
-        timeElapsed = 0;
-        pathNum = 0;
+        this.timeElapsed = 0;
+        this.pathNum = 0;
     }
 
     public GraphTraversal(CompressedGraph graph) {
@@ -63,8 +63,6 @@ public abstract class GraphTraversal {
         long endTime = System.nanoTime();
         timeElapsed = endTime - startTime;
         System.out.println("path num: " + pathNum);
-
-
     }
 
     public void saveResults() {

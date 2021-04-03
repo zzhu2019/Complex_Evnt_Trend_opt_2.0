@@ -66,9 +66,12 @@ public class Main {
                     default -> graphBuilder.type = GraphType.Grid;
                 }
 
-                System.out.println("Desired frequency: (1/[(F*N)+1])");
+                System.out.println("Desired frequency? (the possibility that there is an edge between 2 nodes)");
+                System.out.println("1/(frequency * nodeNum + 1)");
                 graphBuilder.frequency = setDoubleParameter();
-//                graphBuilder.frequency = sc.nextDouble();
+
+                System.out.println("Desired max degree for DAG nodes?");
+                graphBuilder.setMaxDegree(setIntParameter());
 
                 graph = graphBuilder.generateRandomGraph(numNodes);
 
@@ -111,11 +114,6 @@ public class Main {
             }
         }
 
-        System.out.println("""
-                - Output folders created
-                      ...
-                """);
-
         System.out.print("Please enter number of run you want for the algorithm: \n");
 
         System.gc();
@@ -124,7 +122,7 @@ public class Main {
         AlgoExecutor executor = new AlgoExecutor(setIntParameter());
 
         // choose the algo
-        while (true) {
+        while(true) {
             System.out.println("""
                     -------------------------------------------------------------
                     - Please add the algorithm to process the graph:            -
@@ -160,19 +158,19 @@ public class Main {
 
         System.out.println("\n\n- Run finished");
 
-        if (executor.isSavePathInMem()) {
+        if(executor.isSavePathInMem()) {
             System.out.println("""
                     - Paths are now stored in memory.
                     Do you want to save result to files? (y/n)""");
 
-            if (sc.nextLine().equals("y")) {
+            if(sc.nextLine().equals("y")) {
 
                 System.out.println("Writing results...\n");
                 executor.savePathsResult();
             }
 
             System.out.println("\n\n- Do you want to print out results? (y/n)");
-            if (sc.nextLine().equals("y")) {
+            if(sc.nextLine().equals("y")) {
                 executor.printPaths();
             }
         }
@@ -187,7 +185,7 @@ public class Main {
     private static void printDegreeNumVSNode(CompressedGraph graph){
         TreeMap<Integer, Integer> degreeNum = new TreeMap<>(Collections.reverseOrder());
 
-        for(int i = 0; i < graph.getNumVertex(); i ++){
+        for(int i = 0; i < graph.getNumVertex(); i++) {
             int degree = graph.getNumDegree(i);
             if(degreeNum.get(degree) == null) {
                 degreeNum.put(degree, 1);
@@ -199,8 +197,8 @@ public class Main {
         System.out.println("-------------------------------------------------------------");
         System.out.println("Node Degree : The Number of Nodes");
         printDegrees(degreeNum);
-        degreeNum.clear();
         System.out.println("-------------------------------------------------------------");
+        degreeNum.clear();
 
 //        System.out.println("Nodes inside the DAG: ");
 //        TreeMap<Integer, Integer> interDegreeNum = new TreeMap<>(Collections.reverseOrder());
@@ -233,7 +231,7 @@ public class Main {
 //        printDegrees(degreeNum);
 //        System.out.println("-------------------------------------------------------------");
 
-        //question----what the f**k is this????-----
+        // Question: ----what the f**k is this????-----
 
 //        System.out.println("\n\n\nIncoming degree nodes: ");
 //        interDegreeNum.clear();
@@ -254,7 +252,7 @@ public class Main {
         set = interDegreeNum.entrySet();
         iterator = set.iterator();
 
-        while (iterator.hasNext()) {
+        while(iterator.hasNext()) {
             Map.Entry me = (Map.Entry)iterator.next();
             System.out.print(me.getKey() + ": ");
             System.out.println(me.getValue());
@@ -298,6 +296,5 @@ public class Main {
         }
         return value;
     }
-
 }
 

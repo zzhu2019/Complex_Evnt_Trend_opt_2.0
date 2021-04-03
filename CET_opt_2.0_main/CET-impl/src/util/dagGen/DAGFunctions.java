@@ -1,12 +1,13 @@
 package src.util.dagGen;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+//import java.util.Iterator;
+import java.util.List;
 import java.util.Stack;
 
 class DAGFunctions {
 
-    public static boolean log = true;
+    public static boolean isLog = true;
 
     public static boolean[][] resolveDependencies(boolean[][] matrix) {
         boolean[][] result = new boolean[matrix.length][matrix[0].length];
@@ -45,41 +46,43 @@ class DAGFunctions {
      * @throws DAGSelfDependent If a cloudlet depends on itself
      */
     public static void integrityCheck(boolean[][] matrix) throws DAGSelfDependent {
-        if (log)
+        if(isLog) {
             System.out.print("Checking Integrity of DAG File...");
+        }
         boolean[][] temp = DAGFunctions.resolveDependencies(matrix);
-        if (temp.length > 0) {
-            for (int i = 0; i < temp.length && i < temp[0].length; i++) {
+        if(temp.length > 0) {
+            for(int i = 0; i < temp.length && i < temp[0].length; i++) {
                 //if job depends on self
-                if (temp[i][i]) {
+                if(temp[i][i]) {
                     throw new DAGSelfDependent();
                 }
             }
         }
-        if (log)
+        if(isLog) {
             System.out.println(" File Passed Integrity Check!");
-    }
-
-    //Used for the recursive part of removeSelfDependencies()
-    private static IntegerStack depends = new IntegerStack();
-
-    /**
-     * Navigates the matrix and removes any self dependencies.
-     *
-     * @deprecated
-     */
-    public static boolean[][] oldRemoveSelfDependencies(boolean[][] matrix) {
-        if (log)
-            System.out.println("Removing Dependencies...");
-        for (int i = 0; i < matrix.length; i++) {
-            if (log)
-                System.out.println("Checking Row " + i);
-            depends.push(i);
-            buildStack(matrix, i);
-            depends.clear();
         }
-        return matrix;
     }
+
+//    //Used for the recursive part of removeSelfDependencies()
+//    private static IntegerStack depends = new IntegerStack();
+
+//    /**
+//     * Navigates the matrix and removes any self dependencies.
+//     *
+//     * @deprecated
+//     */
+//    public static boolean[][] oldRemoveSelfDependencies(boolean[][] matrix) {
+//        if(isLog)
+//            System.out.println("Removing Dependencies...");
+//        for(int i = 0; i < matrix.length; i++) {
+//            if(isLog)
+//                System.out.println("Checking Row " + i);
+//            depends.push(i);
+//            buildStack(matrix, i);
+//            depends.clear();
+//        }
+//        return matrix;
+//    }
 
 
     public static boolean[][] removeSelfDependencies(boolean[][] matrix) {
@@ -99,7 +102,7 @@ class DAGFunctions {
     }
 
     private static TreeNode[] shuffleTree(TreeNode[] tree) {
-        if(log)
+        if(isLog)
         {
             System.out.println("Shuffling Tree References...");
         }
@@ -118,7 +121,7 @@ class DAGFunctions {
      * @return a DAG
      */
     private static boolean[][] cleanTree(TreeNode[] tree, boolean[][] matrix) {
-        if(log) {
+        if(isLog) {
             System.out.println("Removing Self Dependencies Using Tree...");
         }
         // Keep track of which nodes have been checked for circular references
@@ -159,7 +162,7 @@ class DAGFunctions {
     }
 
     private static ArrayList<int[]> cleanTree(TreeNode[] tree, ArrayList<int[]> pairs) {
-        if (log)
+        if (isLog)
             System.out.println("Removing Self Dependencies Using Tree...");
         //Keeps track of which nodes have been checked for circular references
         boolean[] checked = new boolean[tree.length];
@@ -195,7 +198,7 @@ class DAGFunctions {
     }
 
     private static ArrayList<Integer>[] cleanTree(TreeNode[] tree, ArrayList<Integer>[] lists) {
-        if (log)
+        if (isLog)
             System.out.println("Removing Self Dependencies Using Tree...");
         //Keeps track of which nodes have been checked for circular references
         boolean[] checked = new boolean[tree.length];
@@ -244,7 +247,7 @@ class DAGFunctions {
      * @return a TreeNode object that contains parent-child relationship
      */
     private static TreeNode[] generateTreeFromGrid(boolean[][] matrix) {
-        if(log) {
+        if(isLog) {
             System.out.println("Building Tree Data Structure...");
         }
 
@@ -269,7 +272,7 @@ class DAGFunctions {
 
     private static TreeNode[] generateTreeFromPairs(ArrayList<int[]> pairs, int jobCount) {
 
-        if(log) {
+        if(isLog) {
             System.out.println("Building Tree Data Structure from compressed pairs...");
         }
 
@@ -286,7 +289,7 @@ class DAGFunctions {
     }
 
     private static TreeNode[] generateTreeFromLists(ArrayList<Integer>[] lists) {
-        if (log) System.out.println("Building Tree Data Structure from compressed lists...");
+        if (isLog) System.out.println("Building Tree Data Structure from compressed lists...");
         TreeNode[] treeNodes = new TreeNode[lists.length];
         for (int i = 0; i < treeNodes.length; i++) {
             treeNodes[i] = new TreeNode(i);
@@ -301,30 +304,30 @@ class DAGFunctions {
 
     }
 
-    private static void buildStack(boolean[][] matrix, int row) {
-        for (int j = 0; j < matrix[row].length; j++) {
-            if (matrix[row][j]) {
-                if (depends.contains(new Integer(j))) {
-                    matrix[row][j] = false;
-                } else {
-                    depends.push(new Integer(j));
-                    buildStack(matrix, j);
-                }
-            }
-        }
-        depends.pop();
-    }
+//    private static void buildStack(boolean[][] matrix, int row) {
+//        for (int j = 0; j < matrix[row].length; j++) {
+//            if (matrix[row][j]) {
+//                if (depends.contains(new Integer(j))) {
+//                    matrix[row][j] = false;
+//                } else {
+//                    depends.push(new Integer(j));
+//                    buildStack(matrix, j);
+//                }
+//            }
+//        }
+//        depends.pop();
+//    }
 
 
 //    public static void printMatrix(boolean[][] matrix) {
-//        if (log)
+//        if(isLog)
 //            System.out.println("Generating String For STD Output...");
 //        StringBuilder result = new StringBuilder(matrix.length * (matrix[0].length * 3));
-//        for (int i = 0; i < matrix.length; i++) {
+//        for(boolean[] booleans : matrix) {
 //            result.append("|");
 //            for (int j = 0; j < matrix[0].length; j++) {
 //                char c;
-//                if (matrix[i][j])
+//                if (booleans[j])
 //                    c = '1';
 //                else
 //                    c = '0';
@@ -336,19 +339,49 @@ class DAGFunctions {
 //        System.out.println(result);
 //    }
 
-    private static class IntegerStack extends Stack<Integer> {
+//    private static class IntegerStack extends Stack<Integer> {
+//
+//        private static final long serialVersionUID = 8650955703278560778L;
+//
+//        @Override
+//        public boolean contains(Object o) {
+//            Integer value = (Integer) o;
+//            Iterator<Integer> it = this.iterator();
+//            while(it.hasNext()) {
+//                if (it.next().intValue() == value.intValue())
+//                    return true;
+//            }
+//            return false;
+//        }
+//    }
 
-        private static final long serialVersionUID = 8650955703278560778L;
-
-        @Override
-        public boolean contains(Object o) {
-            Integer value = (Integer) o;
-            Iterator<Integer> it = this.iterator();
-            while(it.hasNext()) {
-                if (it.next().intValue() == value.intValue())
-                    return true;
+    /**
+     * Go through the diagram, if an edge's degree is more than maxDegree, then randomly remove some edges
+     * Temporarily, this is just for graphs in matrix form
+     *
+     * @param matrix graph
+     * @param maxDegree A max degree parameter set during the configuration
+     * @return a revised graph
+     */
+    public static boolean[][] maxDegreeCheckAndResolve(boolean[][] matrix, int maxDegree) {
+        for(int i=0; i<matrix.length; ++i) {
+            List<Integer> neighbours = new ArrayList<>();
+            for(int j=0; j<matrix[i].length; ++j) {
+                if(matrix[i][j]) {
+                    neighbours.add(j);
+                }
             }
-            return false;
+
+            if(neighbours.size() > maxDegree) {
+                int count = neighbours.size()-maxDegree;
+                while(count > 0) {
+                    int pickedEdge = (int) Math.floor(Math.random()*neighbours.size());
+                    matrix[i][neighbours.get(pickedEdge)] = false;
+                    neighbours.remove(pickedEdge);
+                    count--;
+                }
+            }
         }
+        return matrix;
     }
 }

@@ -15,51 +15,55 @@ public class DAGSmith {
      * The default constructor for DAGSmith. This behaves as if DAGSmith(false) was called as a constructor (logging will be disabled).
      */
     public DAGSmith() {
-        DAGFunctions.log = false;
+        DAGFunctions.isLog = false;
         DAGTools.log = false;
     }
 
     /**
      * Create a DAGSmith.
      *
-     * @param log If set to true, debugging information will be printed to stdout during the creation of DAGs.
+     * @param isLog If set to true, debugging information will be printed to stdout during the creation of DAGs.
      */
-    public DAGSmith(boolean log) {
-        DAGFunctions.log = log;
-        DAGTools.log = log;
+    public DAGSmith(boolean isLog) {
+        DAGFunctions.isLog = isLog;
+        DAGTools.log = isLog;
     }
 
     /**
-     * Behaves the same as generateRandomFile(in jobCount, int frequency), but saves the results to a file
-     * in addition to returning them.
+     * Save the graph to file and return it
      *
      * @param jobCount  The number of nodes to put in the graph (i.e. a value of 8 would result in an 8x8 matrix).
      * @param frequency The likelihood two nodes will have an edge between them. This value represents a percentage such that probability = 1 / frequency.
      *                  (i.e. a value of 2 would yield a 50% chance. 3 would yield 33%. 4: 25%, 5: 20%, etc.)
+     * @param maxDegree the max degree in the DAG
      * @param FileName  The file to save the generated matrix too.
      * @return The generated graph.
      */
-    public boolean[][] generateRandomFile(int jobCount, int frequency, String FileName) {
-        boolean[][] matrix = this.generateDAGMatrix(jobCount, frequency);
+    public boolean[][] generateRandomFile(int jobCount, int frequency, int maxDegree,String FileName) {
+        boolean[][] matrix = this.generateDAGMatrix(jobCount, frequency, maxDegree);
         DAGTools.saveToFile(matrix, FileName);
         return matrix;
     }
 
     /**
      * Generates a random NxN directed acyclic graph with jobcount nodes.
+     * Temporarily, the maxValue is just for graphs in matrix form
      *
      * @param jobCount  The number of nodes to put in the graph (i.e. a value of 8 would result in an 8x8 matrix).
      * @param frequency The likelihood two nodes will have an edge between them. This value represents a percentage such that probability = 1 / frequency.
      *                  (i.e. a value of 2 would yield a 50% chance. 3 would yield 33%. 4: 25%, 5: 20%, etc.)
+     * @param maxValue The max degree for nodes in the DAG
      * @return The generated graph.
      */
-    public boolean[][] generateDAGMatrix(int jobCount, int frequency) {
+    public boolean[][] generateDAGMatrix(int jobCount, int frequency, int maxValue) {
         boolean[][] matrix = generateRandomMatrix(jobCount, frequency);
-        return DAGFunctions.removeSelfDependencies(matrix);
+        boolean[][] matrix1 = DAGFunctions.maxDegreeCheckAndResolve(matrix, maxValue);       // reduce degree if applicable
+        return DAGFunctions.removeSelfDependencies(matrix1);                     // remove circular dependence
     }
 
-    public CompressedGraph generateDAGCSR(int jobCount, int frequency){
-        boolean[][] dag = generateDAGMatrix(jobCount, frequency);
+
+    public CompressedGraph generateDAGCSR(int jobCount, int frequency, int maxDegree){
+        boolean[][] dag = generateDAGMatrix(jobCount, frequency, maxDegree);
         int edgeNum = 0;
         for(boolean[] col : dag)
             for(boolean b: col)
@@ -85,12 +89,13 @@ public class DAGSmith {
         return dagGraph;
     }
 
-
+    // TODO: check if all nodes' degree are below the max degree
     public ArrayList<int[]> generateDAGPairs(int jobCount, int frequency) {
         ArrayList<int[]> sparseMatrix = this.generateRandomCompressedPair(jobCount, frequency);
         sparseMatrix = DAGFunctions.removeSelfDependencies(sparseMatrix, jobCount);
         return sparseMatrix;
     }
+
 
     public ArrayList<Integer>[] generateDAGLists(int jobCount, int frequency) {
         ArrayList<Integer>[] lists = this.generateRandomCompressedLists(jobCount, frequency);
@@ -98,10 +103,9 @@ public class DAGSmith {
         return lists;
     }
 
-    //Actual Generate methods
 
     private boolean[][] generateRandomMatrix(int jobCount, int frequency) {
-        if(log()) {
+        if(getIsLog()) {
             System.out.println("Generating Matrix...");
         }
 
@@ -111,7 +115,6 @@ public class DAGSmith {
             // try to see if it's connected to the graph at all
             for(int j = 0; j < jobCount; j++) {
                 if (i != j) result[i][j] = random(frequency);
-
             }
         }
 
@@ -119,13 +122,13 @@ public class DAGSmith {
     }
 
     private ArrayList<int[]> generateRandomCompressedPair(int jobCount, int frequency) {
-        if (log()) System.out.println("Generating Compressed Pair...");
+        if(getIsLog()) System.out.println("Generating Compressed Pair...");
         ArrayList<int[]> results = new ArrayList<>();
 
-        for (int i = 0; i < jobCount; i++) {
+        for(int i = 0; i < jobCount; i++) {
             boolean[] edges = new boolean[jobCount];
-            for (int j = 0; j < jobCount; j++) {
-                if (i != j) edges[j] = random(frequency);
+            for(int j = 0; j < jobCount; j++) {
+                if(i != j) edges[j] = random(frequency);
             }
             results.addAll(generateSparsePairs(i, edges));
         }
@@ -143,17 +146,19 @@ public class DAGSmith {
     }
 
     private ArrayList<Integer>[] generateRandomCompressedLists(int jobCount, int frequency) {
-        if (log())
+        if(getIsLog())
             System.out.println("Generating Compressed Lists...");
 
         ArrayList<Integer>[] lists = new ArrayList[jobCount];
-        for (int i = 0; i < jobCount; i++) {
+        for(int i = 0; i < jobCount; i++) {
             lists[i] = new ArrayList<>();
             // try to see if it's connected to the graph at all
-            for (int j = 0; j < jobCount; j++) {
-                if (i != j)
-                    if (random(frequency))
-                     lists[i].add(j);
+            for(int j = 0; j < jobCount; j++) {
+                if(i != j) {
+                    if(random(frequency)) {
+                        lists[i].add(j);
+                    }
+                }
             }
 
         }
@@ -166,9 +171,9 @@ public class DAGSmith {
 
 
     /**
-     * for easy access in class
+     * Commandline output
      */
-    private boolean log() {
-        return DAGFunctions.log;
+    private boolean getIsLog() {
+        return DAGFunctions.isLog;
     }
 }
