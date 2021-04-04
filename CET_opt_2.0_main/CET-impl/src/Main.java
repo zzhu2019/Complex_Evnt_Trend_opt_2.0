@@ -35,7 +35,8 @@ public class Main {
         else {
             System.out.println("""
                     -------------------------------------------------------------
-                    -  Do you want to enter an existing config file path? (y/n) -
+                    - Do you want to enter an existing config file path? (y/n)  -
+                    - If any other char is entered, this programm will exit.    -
                     -------------------------------------------------------------""");
             input = sc.nextLine();
             if(input.equalsIgnoreCase("n")) {
@@ -57,24 +58,29 @@ public class Main {
                 input = sc.nextLine();
 
                 System.out.println("\n- Do you want to save the graph to file?(y/n)");
-                graphBuilder.saveFile = sc.nextLine().equals("y");
+                graphBuilder.saveFile = setBooleanParameter();
 
-                switch (input) {
+                switch(input) {
                     case "2" -> graphBuilder.type = GraphType.Pair;
                     case "3" -> graphBuilder.type = GraphType.List;
                     case "4" -> graphBuilder.type = GraphType.CSR;
                     default -> graphBuilder.type = GraphType.Grid;
                 }
 
-                System.out.println("Desired frequency? (the possibility that there is an edge between 2 nodes)");
-                System.out.println("1/(frequency * nodeNum + 1)");
+                System.out.println("""
+                    -------------------------------------------------------------
+                    - Desired frequency? (the possibility for an edge)          -
+                    - 1/(frequency * nodeNum + 1)                               -
+                    -------------------------------------------------------------""");
                 graphBuilder.frequency = setDoubleParameter();
 
-                System.out.println("Desired max degree for DAG nodes?");
+                System.out.println("""
+                    -------------------------------------------------------------
+                    - Desired max degree for DAG nodes?                         -
+                    -------------------------------------------------------------""");
                 graphBuilder.setMaxDegree(setIntParameter());
 
                 graph = graphBuilder.generateRandomGraph(numNodes);
-
             }
             else if(input.equalsIgnoreCase("y")) {
                 while(true) {
@@ -100,13 +106,11 @@ public class Main {
 
         printDegreeNumVSNode(graph);
 
-        // end the program for testing the graph generator
+        // End the program for testing the graph generator
         System.out.println("Terminate the program? (y/n)");
-        if(sc.nextLine().equals("y")) {
-            return;
-        }
+        if(setBooleanParameter()) return;
 
-        // Create output dir
+        // Create output directory
         File output = new File("OutputFiles/result/timeResults");
         if (!output.exists()) {
             if(!output.mkdirs()) {
@@ -114,16 +118,15 @@ public class Main {
             }
         }
 
-        System.out.print("Please enter number of run you want for the algorithm: \n");
-
         System.gc();
 
-        // Create an executor object: algorithm executor
+        System.out.println("""
+                    -------------------------------------------------------------
+                    - Please enter number of run you want for the algorithm?    -
+                    -------------------------------------------------------------""");
         AlgoExecutor executor = new AlgoExecutor(setIntParameter());
 
-        // choose the algo
-        while(true) {
-            System.out.println("""
+        System.out.println("""
                     -------------------------------------------------------------
                     - Please add the algorithm to process the graph:            -
                     -   99. Finish choosing (exit program)                      -
@@ -135,50 +138,56 @@ public class Main {
                     -   6.  T_CET                                               -
                     -   7.  Anchor (Double leveling)                            -
                     -------------------------------------------------------------""");
-
+        while(true) {
             int algoIndex = setIntParameter();
 
             if(algoIndex == 99) return;
+            else if(algoIndex <= 7) {
+                System.out.println("""
+                    -------------------------------------------------------------
+                    - Do you want to save result to run time memory? (y/n)      -
+                    -------------------------------------------------------------""");
+                executor.setSavePathInMem(setBooleanParameter());
 
-            if(algoIndex > 7) continue;
-
-            System.out.println("\n\n- Do you want to save result to run time memory? (y/n)");
-            executor.setSavePathInMem(sc.nextLine().equalsIgnoreCase("y"));
-
-            executor.useAlgo(algoIndex, graph);
-            break;
+                executor.setAlgo(algoIndex, graph);
+                break;
+            }
+            else {
+                System.out.println("Not a valid option!");
+            }
         }
 
 
-        System.out.println("Start executing...");
+        System.out.println("Start executing...\n\n");
 
         executor.execute();
-
         executor.cleanGarbage();
 
         System.out.println("\n\n- Run finished");
 
         if(executor.isSavePathInMem()) {
             System.out.println("""
-                    - Paths are now stored in memory.
-                    Do you want to save result to files? (y/n)""");
+                    -------------------------------------------------------------
+                    - Paths are now stored in memory.                           -
+                    - Do you want to save result to files? (y/n)                -
+                    -------------------------------------------------------------""");
 
-            if(sc.nextLine().equals("y")) {
-
-                System.out.println("Writing results...\n");
+            if(setBooleanParameter()) {
+                System.out.println("\n\nWriting results...\n\n");
                 executor.savePathsResult();
             }
 
-            System.out.println("\n\n- Do you want to print out results? (y/n)");
-            if(sc.nextLine().equals("y")) {
+            System.out.println("""
+                    -------------------------------------------------------------
+                    - Do you want to print out results? (y/n)                   -
+                    -------------------------------------------------------------""");
+            if(setBooleanParameter()) {
                 executor.printPaths();
             }
         }
         else {
-            System.out.println("Warning: No results saved.\n");
+            System.out.println("Warning: No results saved.");
         }
-
-
     }
 
 
@@ -261,9 +270,9 @@ public class Main {
 
     /**
      * set a int parameter positive, usually a parameter for graph generator
-     * @return a positive value
+     * @return a positive int value
      */
-    private static int setIntParameter( ) {
+    private static int setIntParameter() {
         int value;
         Scanner sc = new Scanner(System.in);
 
@@ -280,7 +289,11 @@ public class Main {
         return value;
     }
 
-    private static double setDoubleParameter( ) {
+    /**
+     * set a double parameter positive, usually a parameter for graph generator
+     * @return a positive double value
+     */
+    private static double setDoubleParameter() {
         double value;
         Scanner sc = new Scanner(System.in);
 
@@ -294,6 +307,32 @@ public class Main {
                 System.out.println("Not a valid number!");
             }
         }
+        return value;
+    }
+
+    /**
+     * set a boolean parameter positive, usually a parameter for graph generator
+     * @return a boolean value
+     */
+    private static boolean setBooleanParameter() {
+        boolean value;
+        Scanner sc = new Scanner(System.in);
+
+        while(true) {
+            String input = sc.nextLine();
+            if(input.equalsIgnoreCase("y")) {
+                value = true;
+                break;
+            }
+            else if(input.equalsIgnoreCase("n")) {
+                value = false;
+                break;
+            }
+            else {
+                System.out.println("Not a valid option!");
+            }
+        }
+
         return value;
     }
 }

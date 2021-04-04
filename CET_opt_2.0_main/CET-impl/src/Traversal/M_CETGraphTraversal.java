@@ -25,7 +25,7 @@ public class M_CETGraphTraversal extends GraphTraversal {
             for (int node : currentSeq) {
                 resultPath.push(node);
             }
-            if (saveToMem) validPaths.add(getPath(resultPath));
+            if (isSaveToMem) validPaths.add(getPath(resultPath));
             currentSeq.clear();
         } else {
             for (int i = graph.rowIndex[curNode]; i < graph.rowIndex[curNode + 1]; i++) {

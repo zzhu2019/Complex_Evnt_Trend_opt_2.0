@@ -21,7 +21,7 @@ public class DFSGraphTraversal extends GraphTraversal {
         if(graph.getNumDegree(start) != 0) DFStraversal(start, path);
 
         else{
-            if(saveToMem) validPaths.add(path.getAllElements());
+            if(isSaveToMem) validPaths.add(path.getAllElements());
             pathNum++;
         }
 
@@ -30,7 +30,7 @@ public class DFSGraphTraversal extends GraphTraversal {
     private void DFStraversal(int s, CustomIntStack path) {
 
         if(graph.endContains(s)) {
-            if(saveToMem) validPaths.add(path.getAllElements());
+            if(isSaveToMem) validPaths.add(path.getAllElements());
             pathNum++;
             return;
         }

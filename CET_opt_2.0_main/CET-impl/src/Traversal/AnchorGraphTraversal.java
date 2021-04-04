@@ -96,7 +96,7 @@ public class AnchorGraphTraversal extends GraphTraversal {
         if (graph.getNumDegree(start) != 0) DFSsubTraversal(start, stack);
             // if it is a start point and has no neighbours
         else if (graph.startContains(start)) {
-            if (saveToMem) validPaths.add(stack.getAllElements());
+            if (isSaveToMem) validPaths.add(stack.getAllElements());
             pathNum++;
         }
 
@@ -105,7 +105,7 @@ public class AnchorGraphTraversal extends GraphTraversal {
     private void DFSsubTraversal(int s, CustomIntStack curStack) {
 
         if(graph.startContains(curStack.firstElement()) && graph.endContains(s)){
-            if (saveToMem)  validPaths.add(curStack.getAllElements());
+            if (isSaveToMem)  validPaths.add(curStack.getAllElements());
             pathNum ++;
             return;
         }
@@ -151,7 +151,7 @@ public class AnchorGraphTraversal extends GraphTraversal {
             for (Object obj : currentPaths.getAllElements()) {
                 int[] subPath = (int[]) obj;
                 if (graph.endContains(subPath[subPath.length - 1])) { // probs could optimize here
-                    if (saveToMem) validPaths.add(subPath);
+                    if (isSaveToMem) validPaths.add(subPath);
                     pathNum++;
                     continue;
                 }
@@ -176,7 +176,7 @@ public class AnchorGraphTraversal extends GraphTraversal {
      void DFSsubConcatenate(int[] s, CustomObjStack<int[]> curStack) {
 
         if (graph.endContains(s[s.length - 1])) {
-            if (saveToMem) validPaths.add(getPathSeq(curStack));
+            if (isSaveToMem) validPaths.add(getPathSeq(curStack));
             pathNum++;
             return;
         }
