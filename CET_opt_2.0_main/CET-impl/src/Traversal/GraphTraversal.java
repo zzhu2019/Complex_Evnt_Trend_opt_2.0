@@ -8,6 +8,7 @@ import java.sql.Time;
 import java.util.*;
 
 public abstract class GraphTraversal {
+    // TODO： add get method for class attributes
     CompressedGraph graph;
     ArrayList<int[]> validPaths;
     public TraversalType traversalType;
@@ -26,9 +27,9 @@ public abstract class GraphTraversal {
     }
 
     //TODO: identify patterns of a path
-    public boolean identifyPattern(ArrayList<Integer> path) {
-        return path != null;
-    }
+//    public boolean identifyPattern(ArrayList<Integer> path) {
+//        return path != null;
+//    }
 
 
     void clearAll(){

@@ -46,7 +46,7 @@ class AlgoExecutor {
      * 3. Anchor (BFS concatenate)
      * 4. Anchor (DFS concatenate)
      * 5. M_CET
-     * 6. T_CET
+     * 6. T_CE
      * 7. Anchor (Double leveling)
      *
      * @param selection selection of algo
@@ -72,8 +72,12 @@ class AlgoExecutor {
         System.out.println("\n" +
                 "Do you want to run it concurrently?(y/n)");
         String input = sc.nextLine();
-        if(input.equals("y")) this.algo = new ConcurrentAnchorTraversal(graph, savePathInMem, null, concatenateType);
-        else this.algo = new AnchorGraphTraversal(graph, savePathInMem, null,concatenateType );
+        if(input.equals("y")) {
+            algo = new ConcurrentAnchorTraversal(graph, savePathInMem, null, concatenateType);
+        }
+        else {
+            algo = new AnchorGraphTraversal(graph, savePathInMem, null,concatenateType );
+        }
 
         selectAnchorType(graph);
     }
@@ -96,10 +100,14 @@ class AlgoExecutor {
         System.out.println("\n" +
                 "Do you want to run it concurrently?(y/n)");
         String input = sc.nextLine();
-        if(input.equalsIgnoreCase("y"))
-            this.algo = new ConcurrentDoubleAnchorTraversal(graph, savePathInMem, null, firstConcatenate, secondConcatenate, reduceType);
-        else
-            this.algo = new DoubleAnchorTraversal(graph, savePathInMem, null, firstConcatenate, secondConcatenate, reduceType);
+        if(input.equalsIgnoreCase("y")) {
+            this.algo = new ConcurrentDoubleAnchorTraversal(graph, savePathInMem, null,
+                    firstConcatenate, secondConcatenate, reduceType);
+        }
+        else {
+            this.algo = new DoubleAnchorTraversal(graph, savePathInMem, null,
+                    firstConcatenate, secondConcatenate, reduceType);
+        }
 
         selectAnchorType(graph);
     }
@@ -110,49 +118,60 @@ class AlgoExecutor {
         Scanner sc = new Scanner(System.in);
 
         System.out.println("""
-                -----
-                - As you have selected hybrid type,
-                - please specify the anchor nodes selection strategy:
-                -   1. Random selection
-                -   2. Largest degree nodes
-                -   3. Equally distributed nodes
-                -   4. Smallest degree nodes""");
+                -------------------------------------------------------------
+                - As you have selected hybrid type,                         -
+                - please specify the anchor nodes selection strategy:       -
+                -   1. Random selection                                     -
+                -   2. Largest degree nodes                                 -
+                -   3. Equally distributed nodes                            -
+                -   4. Smallest degree nodes                                -
+                - If an invalid option is entered, the default is 1.        -
+                -------------------------------------------------------------""");
         String input = sc.nextLine();
-        selection = input.equals("1") ? AnchorType.RANDOM : input.equals("2") ? AnchorType.LARGEST_DEGREE : AnchorType.EQUAL_DISTRIBUTE;
-        if(input.equals("4")) selection = AnchorType.SMALLEST_DEGREE;
-
+        switch(input) {
+            case "2" -> selection = AnchorType.LARGEST_DEGREE;
+            case "3" -> selection = AnchorType.EQUAL_DISTRIBUTE;
+            case "4" -> selection = AnchorType.SMALLEST_DEGREE;
+            default -> selection = AnchorType.RANDOM;
+        }
 
         while(true) {
             System.out.println("\n- Please enter the number of anchors:");
             numAnchor = Integer.parseInt(sc.nextLine());
-            if (numAnchor + graph.getStartPointNum() <= graph.getNumVertex()) break;
-            System.out.println("WARNING: The number of anchor nodes is larger than the number of nodes in graph, try again.\n\n");
+            if(numAnchor + graph.getStartPointNum() <= graph.getNumVertex()) {
+                break;
+            }
+            else {
+                System.out.println("""
+                        WARNING: The number of anchor nodes is larger than the number of nodes in graph, try again.""");
+            }
         }
 
-        ((AnchorGraphTraversal) this.algo).setAnchorNodes(
-                findAnchor(this.algo.getGraph(), selection));
+        ((AnchorGraphTraversal) algo).setAnchorNodes(
+                findAnchor(algo.getGraph(), selection));
     }
 
 
     private int[] findAnchor(CompressedGraph graph, AnchorType selection) {
         AnchorProcessor anchorProcessor = new AnchorProcessor(graph);
-        int[] anchor = anchorProcessor.findAnchors(selection, numAnchor);
+        // Anchor nodes contain start nodes
+        int[] anchors = anchorProcessor.findAnchors(selection, numAnchor);
 
-        System.out.println("\nSource nodes:");
-
-        for (int i = 0; i < graph.getStartPointNum(); i++) {
+        System.out.println("\n[source node, node's degree]: ");
+        for(int i = 0; i < graph.getStartPointNum(); i++) {
             System.out.print(String.format("[%d, %d] ",
                     graph.getStartPoints().get(i),
                     graph.getNumDegree(graph.getStartPoints().get(i))));
         }
-        System.out.println("\nSelected anchor nodes: ");
 
-        for (int i = graph.getStartPointNum(); i < anchor.length; i++) {
-            System.out.print(String.format("[%d, %d] ", anchor[i], graph.getNumDegree(anchor[i])));
+        System.out.println("\n[anchor node, node's degree]: ");
+        for(int i = graph.getStartPointNum(); i < anchors.length; i++) {
+            System.out.print(String.format("[%d, %d] ",
+                    anchors[i],
+                    graph.getNumDegree(anchors[i])));
         }
         System.out.println("\n");
-        return anchor;
-
+        return anchors;
     }
 
     void execute() {
@@ -175,7 +194,7 @@ class AlgoExecutor {
             else {
                 concatenatePrefix = "-" + ((AnchorGraphTraversal)this.algo).concatenateType;
             }
-            concatenatePrefix.replace("ConcatenateType.", "");
+            concatenatePrefix = concatenatePrefix.replace("ConcatenateType.", "");
         }
 
 
@@ -187,29 +206,34 @@ class AlgoExecutor {
 
 
         // for anchor node algorithms
-        if(selection!= null && this.algo.getGraph().getNumVertex() > 100) {
-            System.out.println("Do you want to run range of anchor node num?(y/n)");
+        if(selection != null && this.algo.getGraph().getNumVertex() > 100) {
+            System.out.println("""
+                    -------------------------------------------------------------
+                    - Do you want to run range of anchor node num?(y/n)         -
+                    - If y is not entered, it means no.                         -
+                    -------------------------------------------------------------""");
             int upper;
 
-            if (new Scanner(System.in).nextLine().equals("y")) {
-                while (true) {
+            if(new Scanner(System.in).nextLine().equalsIgnoreCase("y")) {
+                while(true) {
                     System.out.println("\nDesired upper bound:");
                     try {
                         upper = Integer.parseInt(new Scanner(System.in).nextLine());
                         break;
-                    } catch (Exception e) {
-                        System.out.println("Not a number!");
+                    }
+                    catch(Exception e) {
+                        System.out.println("Not a valid number!");
                     }
                 }
                 // get the closest int of numAnchor as start point
                 numAnchor = numAnchor / 5 * 5;
-                if (upper < numAnchor) upper = this.algo.getGraph().getNumVertex() / 10 + 10;
+                if(upper < numAnchor) upper = this.algo.getGraph().getNumVertex() / 10 + 10;
 
-                for (int i = numAnchor; i <= upper; i += 5) {
-                    // set new Anchor num
+                for(int i = numAnchor; i <= upper; i += 5) {
+                    // set new Anchor num with an increment of evey 5 until hitting the upper
                     numAnchor = i;
-                    ((AnchorGraphTraversal) this.algo).setAnchorNodes(
-                            findAnchor(this.algo.getGraph(), selection));
+                    ((AnchorGraphTraversal) algo).setAnchorNodes(
+                            findAnchor(algo.getGraph(), selection));
                     runAlgo();
                     writeTimeResult(fileName);
 
@@ -238,18 +262,17 @@ class AlgoExecutor {
 
     private void runAlgo() {
         average = 0;
-        for (int i = 0; i < numRun; i++) {
-            this.algo.execute();
+        for(int i = 0; i < numRun; i++) {
+            algo.execute();
 
-            average += this.algo.timeElapsed;
-            runTimes[i] = this.algo.timeElapsed;
+            average += algo.timeElapsed;
+            runTimes[i] = algo.timeElapsed;
             System.out.println("run: " + runTimes[i]);
             System.gc();
         }
 
-        System.out.println("\n\nAverage execution time in nanoseconds: " + average / numRun);
+        System.out.println("\n\nAverage execution time in nanoseconds: " + average/numRun);
         System.out.println("Average execution time in seconds: " + average / numRun / Math.pow(10, 9) + "\n");
-
     }
 
     private void writeTimeResult(String fileName) {

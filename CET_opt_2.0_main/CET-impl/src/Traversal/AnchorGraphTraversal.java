@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 public class AnchorGraphTraversal extends GraphTraversal {
-
     int[] anchorNodes;
     boolean[] isAnchor;
     HashMap<Integer, CustomObjStack<int[]>> anchorPaths;
@@ -35,7 +34,9 @@ public class AnchorGraphTraversal extends GraphTraversal {
 
     private void initAnchorBool() {
         Arrays.fill(isAnchor, false);
-        for (int i : anchorNodes) isAnchor[i] = true;
+        for(int i : anchorNodes) {
+            isAnchor[i] = true;
+        }
     }
 
     public void setAnchorNodes(int[] anchorNodes) {
