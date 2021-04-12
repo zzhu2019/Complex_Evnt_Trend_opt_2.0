@@ -69,8 +69,10 @@ class AlgoExecutor {
     private void addHybrid(CompressedGraph graph, ConcatenateType concatenateType) {
         Scanner sc = new Scanner(System.in);
 
-        System.out.println("\n" +
-                "Do you want to run it concurrently?(y/n)");
+        System.out.println("""
+                -------------------------------------------------------------
+                - Do you want to run it concurrently?(y/n)                  -
+                -------------------------------------------------------------""");
         String input = sc.nextLine();
         if(input.equals("y")) {
             algo = new ConcurrentAnchorTraversal(graph, savePathInMem, null, concatenateType);
@@ -225,7 +227,7 @@ class AlgoExecutor {
                         System.out.println("Not a valid number!");
                     }
                 }
-                // get the closest int of numAnchor as start point
+                // get a smaller numAnchor as start point
                 numAnchor = numAnchor / 5 * 5;
                 if(upper < numAnchor) upper = this.algo.getGraph().getNumVertex() / 10 + 10;
 
@@ -237,8 +239,8 @@ class AlgoExecutor {
                     runAlgo();
                     writeTimeResult(fileName);
 
-                    System.out.println("\n-- Anchor nodes " + i + " finished!\n\n" +
-                            "--------------------------------------------------------------------------------\n\n\n\n");
+                    System.out.println("\n- Anchor nodes " + i + " finished!\n\n" +
+                            "-------------------------------------------------------------\n\n");
                 }
                 return;
             }

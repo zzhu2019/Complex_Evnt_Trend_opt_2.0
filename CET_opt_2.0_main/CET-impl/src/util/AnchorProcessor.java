@@ -2,6 +2,7 @@ package src.util;
 
 import src.Components.CompressedGraph;
 
+import javax.sound.midi.SysexMessage;
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -168,7 +169,7 @@ public class AnchorProcessor {
     }
 
     // TODO: possible optimization as a DFS takes place here to topological sort
-    // TODO: overlapping of strat nodes and later added anchor nodes
+    // TODO: overlapping of start nodes and later added anchor nodes
     private int[] findEquallyDistributedAnchors(int anchorNum) {
         int[] anchorList = new int[graph.getStartPointNum() + anchorNum];
         Stack<Integer> topStack = new Stack<>();
@@ -182,33 +183,32 @@ public class AnchorProcessor {
         }
 
         // Reverse the order of elements in the stack
-        // Add all non-end nodes in the array
-        ArrayList<Integer> results = new ArrayList<>(graph.getStartPoints());
+//        ArrayList<Integer> results = new ArrayList<>(graph.getStartPoints());
+        ArrayList<Integer> results = new ArrayList<>();
 
+        // Add non-end nodes secondly
         while(!topStack.empty()) {
             int r = topStack.pop();
-            if(!results.contains(r) && !graph.getEndPoints().contains(r)) {
+            if(!graph.getStartPoints().contains(r) && !graph.getEndPoints().contains(r)) {
                 results.add(r);
             }
         }
 
-        // And all the end nodes at the end
-        results.addAll(graph.getEndPoints());
+        // TODO: fine-tuned for topological ordering anchor node selection
+        // Reduce the number of anchor nodes to around HALF if more than HALF of available nodes will be anchor nodes
+        if((graph.getNumVertex() - graph.getStartPointNum() - graph.getEndPointNum())/anchorNum < 2) {
+            anchorNum = (graph.getNumVertex() - graph.getStartPointNum() - graph.getEndPointNum()) / 3;
+            System.out.println("The number of anchor nodes is too large! Reduced to " + anchorNum);
+            anchorList = new int[graph.getStartPointNum() + anchorNum];
+        }
 
         // Add all start nodes in the anchor node lists firstly
         for(int i = 0; i < graph.getStartPointNum(); i++) {
             anchorList[i] = graph.getStartPoints().get(i);
         }
 
-        // Reduce the number of anchor nodes to around HALF if more than HALF of available nodes will be anchor nodes
-        if((graph.getNumVertex() - graph.getStartPointNum() - graph.getEndPointNum() + 1) / (anchorNum + 1) < 2) {
-            System.out.println("Anchor num too large! Reducing to " +
-                    (graph.getNumVertex() - graph.getStartPointNum() + 1) / 2);
-            anchorNum = (graph.getNumVertex() - graph.getStartPointNum() + 1) / 2 - 1;
-        }
-
-        // The gao between every two anchor nodes
-        int spacing = (graph.getNumVertex() - graph.getStartPointNum() - graph.getEndPointNum()) / anchorNum;
+        // The gap between every two anchor nodes
+        int spacing = results.size() / anchorNum - 1;
 
         for(int i = 0; i < anchorNum; i++) {
             anchorList[i + graph.getStartPointNum()] = results.get((i + 1) * spacing);

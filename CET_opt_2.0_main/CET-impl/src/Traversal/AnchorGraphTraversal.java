@@ -63,14 +63,15 @@ public class AnchorGraphTraversal extends GraphTraversal {
         System.out.println("Number of start points: " + graph.getStartPointNum());
         System.out.println("Number of anchor points: " + anchorNodes.length);
         long startTime = System.nanoTime();
-        for (int start : anchorNodes) {
-            if (graph.getNumVertex() > 5000)
+        for(int start : anchorNodes) {
+            if(graph.getNumVertex() > 5000) {
                 System.out.println(new Time(System.currentTimeMillis()).toString() + " - start on: " + start +
                         " with degree " + graph.getNumDegree(start));
+            }
             traversal(start);
         }
 
-        for (int start : graph.getStartPoints()) {
+        for(int start : graph.getStartPoints()) {
             concatenate(start);
         }
 
@@ -91,13 +92,14 @@ public class AnchorGraphTraversal extends GraphTraversal {
 
     @Override
     public void traversal(int start) {
-
         CustomIntStack stack = new CustomIntStack();
         stack.push(start);
-        if (graph.getNumDegree(start) != 0) DFSsubTraversal(start, stack);
-            // if it is a start point and has no neighbours
-        else if (graph.startContains(start)) {
-            if (isSaveToMem) validPaths.add(stack.getAllElements());
+        if(graph.getNumDegree(start) != 0) {
+            DFSsubTraversal(start, stack);
+        }
+        // if it is a start point and has no neighbours
+        else if(graph.startContains(start)) {
+            if(isSaveToMem) validPaths.add(stack.getAllElements());
             pathNum++;
         }
 
@@ -105,20 +107,18 @@ public class AnchorGraphTraversal extends GraphTraversal {
 
     private void DFSsubTraversal(int s, CustomIntStack curStack) {
 
-        if(graph.startContains(curStack.firstElement()) && graph.endContains(s)){
-            if (isSaveToMem)  validPaths.add(curStack.getAllElements());
-            pathNum ++;
+        if(graph.startContains(curStack.firstElement()) && graph.endContains(s)) {
+            if(isSaveToMem)  {
+                validPaths.add(curStack.getAllElements());
+            }
+            pathNum++;
             return;
         }
 
-
-
-
-
         // Recur for all the vertices adjacent to this vertex
-        if (graph.endContains(s)) return;
+        if(graph.endContains(s)) return;
 
-        for (int i = graph.rowIndex[s]; i < graph.rowIndex[s + 1]; i++) {
+        for(int i = graph.rowIndex[s]; i < graph.rowIndex[s + 1]; i++) {
             int edge = graph.colIndex[i];
             curStack.push(edge);
             DFSsubTraversal(edge, curStack);
