@@ -1,6 +1,4 @@
-package src;
-
-import src.Components.CompressedGraph;
+package src.Components;
 
 import src.Traversal.*;
 import src.util.AnchorProcessor;
@@ -12,7 +10,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Scanner;
 
-class AlgoExecutor {
+public class AlgoExecutor {
     private GraphTraversal algo;
     private long average;               // Average execution time
     private final int numRun;
@@ -27,14 +25,14 @@ class AlgoExecutor {
      * Constructor
      * @param numRun The number of algo run
      */
-    AlgoExecutor(int numRun) {
+    public AlgoExecutor(int numRun) {
         this.numRun = numRun;
         this.average = 0;
         this.runTimes = new long[numRun];
     }
 
 
-    void setSavePathInMem(boolean set) {
+    public void setSavePathInMem(boolean set) {
         savePathInMem = set;
     }
 
@@ -52,7 +50,7 @@ class AlgoExecutor {
      * @param selection selection of algo
      * @param graph graph
      */
-    void setAlgo(int selection, CompressedGraph graph) {
+    public void setAlgo(int selection, CompressedGraph graph) {
         switch (selection) {
             case 1 -> this.algo = new BFSGraphTraversal(graph, savePathInMem);
             case 2 -> this.algo = new DFSGraphTraversal(graph, savePathInMem);
@@ -176,7 +174,7 @@ class AlgoExecutor {
         return anchors;
     }
 
-    void execute() {
+    public void execute() {
         System.out.println("Algorithm to execute: " + this.algo.getClass().getName());
         boolean isDoubleConcatenate = this.algo.getClass().getName().contains("Double");
 
@@ -303,15 +301,15 @@ class AlgoExecutor {
         }
     }
 
-    boolean isSavePathInMem() {
+    public boolean isSavePathInMem() {
         return this.savePathInMem;
     }
 
-    void savePathsResult() {
+    public void savePathsResult() {
         this.algo.saveResults();
     }
 
-    void printPaths() {
+    public void printPaths() {
         this.algo.printPaths();
     }
 }

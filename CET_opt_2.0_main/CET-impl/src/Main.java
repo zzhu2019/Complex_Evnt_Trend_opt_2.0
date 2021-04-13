@@ -1,5 +1,6 @@
 package src;
 
+import src.Components.AlgoExecutor;
 import src.Components.CompressedGraph;
 import src.util.GraphBuilder;
 import src.util.GraphType;
