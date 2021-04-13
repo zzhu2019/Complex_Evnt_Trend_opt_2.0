@@ -27,10 +27,10 @@ public class DAGTools {
      */
     public static String printDAG(boolean[][] matrix) {
         StringBuilder result = new StringBuilder(matrix.length * (matrix[0].length * 3));
-        for (boolean[] booleans : matrix) {
-            for (int j = 0; j < matrix[0].length; j++) {
+        for(boolean[] booleans : matrix) {
+            for(int j = 0; j < matrix[0].length; j++) {
                 char c;
-                if (booleans[j])
+                if(booleans[j])
                     c = '1';
                 else
                     c = '0';

@@ -1,8 +1,6 @@
 package src.util;
-
 import src.Components.CompressedGraph;
 
-import javax.sound.midi.SysexMessage;
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -67,12 +65,6 @@ public class AnchorProcessor {
 
         TreeMap<Integer, List<Integer>> degreeVertex = sortMap(verticesByDegree);
         anchorList = findAnchorNodesByDegree(anchorNum, degreeVertex, anchorList, anchorType);
-//        if(anchorType.equalsIgnoreCase("L")) {
-//            anchorList = findLargestDegreeAnchors(anchorNum, degreeVertex, anchorList);
-//        }
-//        else {
-//            anchorList = findSmallestDegreeAnchors(anchorNum, degreeVertex, anchorList);
-//        }
         return anchorList;
     }
 
@@ -82,7 +74,7 @@ public class AnchorProcessor {
      * @param anchorNum         the number of needed anchor nodes
      * @param verticesByDegree  a map that key is degree, value is an array of nodes
      * @param anchorList        the list for anchor nodes, only contains start nodes in the beginning
-     * @param anchorType        the anchor nodes slection type
+     * @param anchorType        the anchor nodes selection type
      * @return a full list of anchor nodes
      */
     private int[] findAnchorNodesByDegree(int anchorNum, TreeMap<Integer, List<Integer>> verticesByDegree,
@@ -113,44 +105,6 @@ public class AnchorProcessor {
     }
 
 
-//    private int[] findLargestDegreeAnchors(int anchorNum,
-//                                           TreeMap<Integer, List<Integer>> verticesByDegree, int[] anchorList) {
-//        int start = graph.getStartPointNum();
-//
-//        for(Map.Entry<Integer, List<Integer>> entry : verticesByDegree.descendingMap().entrySet()) {
-//            if(anchorNum <= 0) break;
-//
-//            for(int i : entry.getValue()) {
-//                if(start < anchorList.length) {
-//                    anchorList[start++] = i;
-//                }
-//                else break;
-//            }
-//
-//            anchorNum -= entry.getValue().size();
-//        }
-//        return anchorList;
-//    }
-
-//    private int [] findSmallestDegreeAnchors(int anchorNum,
-//                                             TreeMap<Integer, List<Integer>> verticesByDegree, int[] anchorList) {
-//
-//        int start = graph.getStartPointNum();
-//
-//        for(Map.Entry<Integer, List<Integer>> entry : verticesByDegree.entrySet()) {
-//            if(anchorNum <= 0) break;
-//
-//            for(int i : entry.getValue()) {
-//                if(start < anchorList.length) {
-//                    anchorList[start++] = i;
-//                }
-//                else break;
-//            }
-//            anchorNum -= entry.getValue().size();
-//        }
-//        return anchorList;
-//    }
-
     /**
      * Source: https://www.geeksforgeeks.org/sorting-a-hashmap-according-to-values/
      *
@@ -168,8 +122,7 @@ public class AnchorProcessor {
         return temp;
     }
 
-    // TODO: possible optimization as a DFS takes place here to topological sort
-    // TODO: overlapping of start nodes and later added anchor nodes
+
     private int[] findEquallyDistributedAnchors(int anchorNum) {
         int[] anchorList = new int[graph.getStartPointNum() + anchorNum];
         Stack<Integer> topStack = new Stack<>();
@@ -225,6 +178,7 @@ public class AnchorProcessor {
      * @param stack     the result stack
      */
     private void topologicalSort(int s, boolean[] visited, Stack<Integer> stack) {
+        // TODO: can I use some of the travelling results?
         visited[s] = true;
         // For node s, call all its neighbours
         for(int i = graph.rowIndex[s]; i < graph.rowIndex[s+1]; i++) {

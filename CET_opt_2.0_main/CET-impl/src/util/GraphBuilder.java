@@ -138,18 +138,19 @@ public class GraphBuilder {
         File file = new File(fileName);
 
         try {
-            if (!file.exists())
+            if(!file.exists()) {
                 file.createNewFile();
-
+            }
 
             FileWriter fw = new FileWriter(file, true);
+            // why write half and then another half here?
             fw.write(string.substring(0, string.length() / 2));
             fw.write(string.substring(string.length() / 2));
             fw.close();
-        } catch (IOException e) {
+        }
+        catch(IOException e) {
             e.printStackTrace();
         }
-
     }
 
     private int getFrequency(int num) {

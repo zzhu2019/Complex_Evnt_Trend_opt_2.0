@@ -21,17 +21,25 @@ class FileGraphParser {
         }
 
         assert myReader != null;
+
+        // The first line in the graph file is the graph type
         String type = myReader.nextLine();
 
         myReader.close();
 
-        if (type.contains("Pair")) return readCompressedPairGraph(fileName);
-        else if (type.contains("Grid")) return readGridGraph(fileName);
-        else if (type.contains("List")) return readCompressedListGraph(fileName);
-        else if (type.contains("CSR")) return readCSRGraph(fileName);
-
-        System.out.println("WARNING: INVALID GRAPH INPUT FILE!");
-        return null;
+        switch(type) {
+            case "Pair":
+                return readCompressedPairGraph(fileName);
+            case "Grid":
+                return readGridGraph(fileName);
+            case "List":
+                return readCompressedListGraph(fileName);
+            case "CSR":
+                return readCSRGraph(fileName);
+            default:
+                System.out.println("Unrecognized type!");
+                return null;
+        }
     }
 
     private CompressedGraph readCSRGraph(String fileName) {
@@ -61,6 +69,7 @@ class FileGraphParser {
 
             for (int i = 0; i < colNum; i++) graph.getColIndex()[i] = Integer.parseInt(colNums[i]);
 
+            assert rowNums != null;
             for (int i = 0; i < nodeNum + 1; i++) graph.getRowIndex()[i] = Integer.parseInt(rowNums[i]);
 
             myReader.close();
@@ -91,18 +100,19 @@ class FileGraphParser {
             File myObj = new File(fileName);
             Scanner myReader = new Scanner(myObj);
             String type = myReader.nextLine();
-            if (type.contains("Random") || !type.contains("Pair")) {
+            if(type.contains("Random") || !type.contains("Pair")) {
                 System.out.println("ERROR: Read wrong type of graph! Should be Compressed Pair!");
             }
 
             nodeNum = Integer.parseInt(myReader.nextLine());
-            while (myReader.hasNext()) {
+            while(myReader.hasNext()) {
                 String[] data = myReader.nextLine().split(",");
-                if (data.length != 2) break;
+                if(data.length != 2) break;
                 matrix.add(new int[]{Integer.parseInt(data[0]), Integer.parseInt(data[1])});
             }
             myReader.close();
-        } catch (Exception e) {
+        }
+        catch(Exception e) {
             System.out.println("File parsing error for reading sparse matrix.");
             e.printStackTrace();
         }
@@ -114,16 +124,11 @@ class FileGraphParser {
 
     /**
      * Example:
-     * <p>
-     * Grid
-     * 3
-     * 1,0,0
-     * 0,0,0
-     * 0,1,0
-     * <p>
-     * 2000-01-01 00:00:00
-     * 2000-02-01 00:00:01
-     * 2000-03-01 12:00:00
+     *  Grid
+     *  3
+     *  1,0,0
+     *  0,0,0
+     *  0,1,0
      */
     private CompressedGraph readGridGraph(String fileName) {
         CompressedGraph graph;
@@ -132,29 +137,30 @@ class FileGraphParser {
             File myObj = new File(fileName);
             Scanner myReader = new Scanner(myObj);
             String type = myReader.nextLine();
-            if (type.contains("Random") || type.contains("Sparse")) {
-                System.out.println("ERROR: Read wrong type of graph! Should be grid!");
-            }
-
+//            if(type.contains("Random") || type.contains("Sparse")) {
+//                System.out.println("ERROR: Read wrong type of graph! Should be grid!");
+//            }
             int nodeNum = Integer.parseInt(myReader.nextLine());
 
             grid = new boolean[nodeNum][nodeNum];
 
-            for (int i = 0; i < nodeNum; i++) {
+            for(int i = 0; i < nodeNum; i++) {
                 String data = myReader.nextLine();
                 String[] neighbours = data.split(",");
-                for (int j = 0; j < nodeNum; j++) {
+                for(int j = 0; j < nodeNum; j++) {
                     grid[i][j] = neighbours[j].equals("1");
                 }
             }
             myReader.close();
 
-        } catch (Exception e) {
+        }
+        catch(Exception e) {
             System.out.println("File parsing error.");
             e.printStackTrace();
         }
         GraphGenerator graphGenerator = new GraphGenerator();
 
+        assert grid != null;
         graph = graphGenerator.buildGraph(grid);
 
         return graph;
@@ -206,6 +212,4 @@ class FileGraphParser {
 
         return graph;
     }
-
-
 }

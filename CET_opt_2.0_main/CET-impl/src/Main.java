@@ -57,7 +57,10 @@ public class Main {
 
                 input = sc.nextLine();
 
-                System.out.println("\n- Do you want to save the graph to file?(y/n)");
+                System.out.println("""
+                        -------------------------------------------------------------
+                        - Do you want to save the graph to file?(y/n)               -
+                        -------------------------------------------------------------""");
                 graphBuilder.saveFile = setBooleanParameter();
 
                 switch(input) {
@@ -84,18 +87,26 @@ public class Main {
             }
             else if(input.equalsIgnoreCase("y")) {
                 while(true) {
-                    System.out.println("Please specify file path: ");
+                    System.out.println("""
+                            -------------------------------------------------------------
+                            - Please specify file path: (enter 'exit' to quit)          -
+                            -------------------------------------------------------------""");
                     input = sc.nextLine();
 
                     if(input.equalsIgnoreCase("exit")) return;
-                    if(new File(input).exists()) break;
 
-                    System.out.println("File doesn't exist, try again, or type \"exit\" to exit the program");
+                    if(new File(input).exists()) break;
+                    else System.out.println("File doesn't exist!");
                 }
+
                 graph = graphBuilder.generateGraphFile(input);
+                if(graph == null) {
+                    System.out.println("exiting the program...");
+                    return;
+                }
             }
             else {
-               System.out.println("Please input a y/n.");
+               System.out.println("Please run the program again and input a y/n.");
                return;
             }
         }
@@ -107,7 +118,10 @@ public class Main {
         printDegreeNumVSNode(graph);
 
         // End the program for testing the graph generator
-        System.out.println("Terminate the program? (y/n)");
+        System.out.println("""
+        -------------------------------------------------------------
+        - Terminate the program? (y/n)                              -
+        -------------------------------------------------------------""");
         if(setBooleanParameter()) return;
 
         // Create output directory

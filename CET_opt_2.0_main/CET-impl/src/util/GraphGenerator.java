@@ -68,7 +68,7 @@ class GraphGenerator {
     CompressedGraph buildGraph(ArrayList<Integer>[] dag) {
         int edgeNum = 0;
 
-        for (ArrayList<Integer> list : dag) {
+        for(ArrayList<Integer> list : dag) {
             edgeNum += list.size();
         }
         CompressedGraph graph = new CompressedGraph(edgeNum, dag.length + 1);
@@ -86,8 +86,5 @@ class GraphGenerator {
         }
 
         return graph;
-
     }
-
-
 }
