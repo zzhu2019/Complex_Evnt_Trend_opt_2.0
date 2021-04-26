@@ -210,7 +210,7 @@ public class AlgoExecutor {
             System.out.println("""
                     -------------------------------------------------------------
                     - Do you want to run range of anchor node num?(y/n)         -
-                    - If y is not entered, it means no.                         -
+                    - If y is not entered, the algo will only run once.         -
                     -------------------------------------------------------------""");
             int upper;
 
@@ -225,8 +225,8 @@ public class AlgoExecutor {
                         System.out.println("Not a valid number!");
                     }
                 }
-                // get a smaller numAnchor as start point
-                numAnchor = numAnchor / 5 * 5;
+                // get a smaller numAnchor which is multiple of 5 as start point
+                if(numAnchor >= 5) numAnchor = numAnchor / 5 * 5;
                 if(upper < numAnchor) upper = this.algo.getGraph().getNumVertex() / 10 + 10;
 
                 for(int i = numAnchor; i <= upper; i += 5) {
@@ -268,7 +268,8 @@ public class AlgoExecutor {
             average += algo.timeElapsed;
             runTimes[i] = algo.timeElapsed;
             System.out.println("run: " + runTimes[i]);
-            System.gc();
+            // FIXME: this code may not be that useful... :/
+//            System.gc();
         }
 
         System.out.println("\n\nAverage execution time in nanoseconds: " + average/numRun);

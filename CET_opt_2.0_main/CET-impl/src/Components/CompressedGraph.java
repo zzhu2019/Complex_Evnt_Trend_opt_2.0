@@ -94,18 +94,17 @@ public class CompressedGraph{
         return startPoints;
     }
 
-    private void loadStartPoints(){
+    private void loadStartPoints() {
         numOfStartPoint = 0;
         isStartPoints = new boolean[rowIndex.length - 1];
         Arrays.fill(isStartPoints, true);
 
         for(int i : colIndex)  isStartPoints[i] = false;
-        for(int i = 0; i < getNumVertex(); i ++)
+        for(int i = 0; i < getNumVertex(); i++)
             if(isStartPoints[i]) {
                 startPoints.add(i);
                 numOfStartPoint ++;
             }
-//        System.out.println(numOfStartPoint + "\n\n\n\n\n\n");
     }
 
     public List<Integer> getEndPoints() {

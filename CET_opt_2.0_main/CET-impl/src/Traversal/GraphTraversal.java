@@ -31,9 +31,11 @@ public abstract class GraphTraversal {
 //        return path != null;
 //    }
 
-
+    /**
+     * This method is for multiple runs of the same algorithm
+     */
     void clearAll(){
-        if (validPaths.size() > 0) validPaths.clear();
+        if(validPaths.size() > 0) validPaths.clear();
         pathNum = 0;
     }
 

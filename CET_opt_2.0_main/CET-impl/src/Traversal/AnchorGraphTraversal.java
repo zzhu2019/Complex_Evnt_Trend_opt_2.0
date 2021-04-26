@@ -27,11 +27,14 @@ public class AnchorGraphTraversal extends GraphTraversal {
     }
 
     private void initMap() {
-        for (Integer anchorNode : anchorNodes) {
+        for(Integer anchorNode : anchorNodes) {
             anchorPaths.put(anchorNode, new CustomObjStack<>());
         }
     }
 
+    /**
+     * Initiate a boolean list, true for anchor node.
+     */
     private void initAnchorBool() {
         Arrays.fill(isAnchor, false);
         for(int i : anchorNodes) {
@@ -39,10 +42,12 @@ public class AnchorGraphTraversal extends GraphTraversal {
         }
     }
 
+
     public void setAnchorNodes(int[] anchorNodes) {
         this.anchorNodes = anchorNodes;
         initAnchorBool();
     }
+
 
     int[] getAnchorNodes(){
         return anchorNodes;
@@ -55,6 +60,7 @@ public class AnchorGraphTraversal extends GraphTraversal {
         initMap();
         pathNum = 0;
     }
+
 
     @Override
     public void execute() {
@@ -79,7 +85,6 @@ public class AnchorGraphTraversal extends GraphTraversal {
         timeElapsed = endTime - startTime;
         System.out.println(new Time(System.currentTimeMillis()).toString() + " - finished sub concatenate!");
         System.out.println("path num: " + pathNum);
-
     }
 
     @Override
@@ -90,34 +95,54 @@ public class AnchorGraphTraversal extends GraphTraversal {
         saveResults(fileName);
     }
 
+    /**
+     * Use DFS traversal by default
+     * @param start: the start node
+     */
     @Override
     public void traversal(int start) {
+//        System.out.println("start node "+start);
         CustomIntStack stack = new CustomIntStack();
         stack.push(start);
+        // If this start node's degree > 0
         if(graph.getNumDegree(start) != 0) {
             DFSsubTraversal(start, stack);
         }
-        // if it is a start point and has no neighbours
+        // If it is a start point and has no neighbours, then it is a path itself
         else if(graph.startContains(start)) {
-            if(isSaveToMem) validPaths.add(stack.getAllElements());
+            if(isSaveToMem) {
+                validPaths.add(stack.getAllElements());
+            }
             pathNum++;
         }
-
+        // else end nodes
     }
 
     private void DFSsubTraversal(int s, CustomIntStack curStack) {
-
+        // No need to put this path in anchorPaths map for concatenating
+        // If the path reaches an end node and its head is a start node, return as a valid path
         if(graph.startContains(curStack.firstElement()) && graph.endContains(s)) {
-            if(isSaveToMem)  {
+            if(isSaveToMem) {
                 validPaths.add(curStack.getAllElements());
             }
             pathNum++;
             return;
         }
 
-        // Recur for all the vertices adjacent to this vertex
-        if(graph.endContains(s)) return;
+        // If the path reaches an end node or an anchor node, save this path to anchorPaths
+        if((isAnchor[s] && curStack.size()>1) || graph.endContains(s)) {
+            // FIXME: Java heap space overflows when run anchor algo in a range
+//            System.out.println(s);
+            anchorPaths.get(curStack.firstElement()).push(curStack.getAllElements());
+            return;
+        }
 
+        if(graph.endContains(s)) {
+            System.out.println("test");
+            return;
+        }
+
+        // Recur for all the vertices adjacent to this vertex
         for(int i = graph.rowIndex[s]; i < graph.rowIndex[s + 1]; i++) {
             int edge = graph.colIndex[i];
             curStack.push(edge);
@@ -128,16 +153,20 @@ public class AnchorGraphTraversal extends GraphTraversal {
 
 
     void concatenate(int start){
-        if(concatenateType.equals(ConcatenateType.BFS)) BFSsubConcatenate(start);
-        if(concatenateType.equals(ConcatenateType.DFS)){
-            System.out.println("concatenate " + start);
-
-            for (Object obj : anchorPaths.get(start).getAllElements()) {
+        if(concatenateType.equals(ConcatenateType.BFS)) {
+            BFSsubConcatenate(start);
+        }
+        else if(concatenateType.equals(ConcatenateType.DFS)) {
+            // For each sub-path under the start node
+            for(Object obj : anchorPaths.get(start).getAllElements()) {
                 int[] startPath = (int[]) obj;
                 CustomObjStack<int[]> stack = new CustomObjStack<>();
                 stack.push(startPath);
                 DFSsubConcatenate(startPath, stack);
             }
+        }
+        else {
+            System.out.println("Unrecognized concatenate type!");
         }
     }
 
@@ -145,23 +174,31 @@ public class AnchorGraphTraversal extends GraphTraversal {
      void BFSsubConcatenate(int start) {
         ArrayQueue<CustomObjStack<int[]>> queue = new ArrayQueue<>(graph.getStartPointNum());
 
+        // Add all these sub-paths under 'start' node as a start
         queue.offer(anchorPaths.get(start));
 
-        while (!queue.isEmpty()) {
+        while(!queue.isEmpty()) {
+            // Get the first set of sub-paths from the queue
             CustomObjStack<int[]> currentPaths = queue.poll();
-            for (Object obj : currentPaths.getAllElements()) {
+            // For each sub-path
+            for(Object obj : currentPaths.getAllElements()) {
                 int[] subPath = (int[]) obj;
-                if (graph.endContains(subPath[subPath.length - 1])) { // probs could optimize here
-                    if (isSaveToMem) validPaths.add(subPath);
+                if(graph.endContains(subPath[subPath.length - 1])) { // probs could optimize here
+                    if(isSaveToMem) validPaths.add(subPath);
                     pathNum++;
                     continue;
                 }
 
+                // New sub-paths by joining two sub-paths
                 CustomObjStack<int[]> combo = new CustomObjStack<>();
 
-                for (Object object : anchorPaths.get(subPath[subPath.length - 1]).getAllElements()) {
+                // Get all these sub-paths under the end node of the current sub-path
+                for(Object object : anchorPaths.get(subPath[subPath.length - 1]).getAllElements()) {
                     int[] nextList = (int[]) object;
+
+                    // FIXME: Java heap space overflows because memory use increases exponentially
                     int[] newPath = new int[subPath.length - 1 + nextList.length];
+
                     System.arraycopy(subPath, 0, newPath, 0, subPath.length - 1);
                     System.arraycopy(nextList, 0, newPath, subPath.length - 1, nextList.length);
 
@@ -169,63 +206,65 @@ public class AnchorGraphTraversal extends GraphTraversal {
                 }
                 queue.offer(combo);
             }
-            currentPaths = null; // let garbage collection deal with it
         }
     }
 
 
      void DFSsubConcatenate(int[] s, CustomObjStack<int[]> curStack) {
-
-        if (graph.endContains(s[s.length - 1])) {
-            if (isSaveToMem) validPaths.add(getPathSeq(curStack));
+        // A valid complete path
+        if(graph.endContains(s[s.length - 1])) {
+            if(isSaveToMem) validPaths.add(getPathSeq(curStack));
             pathNum++;
             return;
         }
 
-        for (Object obj : anchorPaths.get(s[s.length - 1]).getAllElements()) { //get neighbours
+        // For each sub-path under the end node of the current sub-path
+        for(Object obj : anchorPaths.get(s[s.length - 1]).getAllElements()) {
             int[] nextAnchorPath = (int[]) obj;
+            // Push the sub-path to the stack
             curStack.push(nextAnchorPath);
+            // DFS the sub-path
             DFSsubConcatenate(nextAnchorPath, curStack);
+            // Pop the sub-path
             curStack.pop();
         }
 
     }
 
-    int[] getPathSeq(CustomObjStack<int[]> stack) {
-        int length = 0;
 
+    int[] getPathSeq(CustomObjStack<int[]> stack) {
+        // TODO: possible optimization here
+        int length = 0;
         int counter = 0;
 
-        for (Object object : stack.getAllElements()) {
+        for(Object object : stack.getAllElements()) {
             int[] s = (int[]) object;
-            if (counter < stack.size() - 1){
+            if(counter < stack.size() - 1){
                 length += s.length - 1;
                 counter ++;
             }
-            else length += s.length;
+            else {
+                length += s.length;
+            }
         }
 
         int[] pathArray = new int[length];
 
         length = 0;
         counter = 0;
-        for (Object obj : stack.getAllElements()) {
+        for(Object obj : stack.getAllElements()) {
             int[] s = (int[]) obj;
-            if (counter < stack.size() - 1) {
+            if(counter < stack.size() - 1) {
                 System.arraycopy(s, 0, pathArray, length, s.length - 1);
                 length += s.length - 1;
-                counter ++;
-            } else {
+            }
+            else {
                 System.arraycopy(s, 0, pathArray, length, s.length);
                 length += s.length;
-                counter ++;
             }
+            counter ++;
         }
 
         return pathArray;
-
     }
-
-
-
 }
