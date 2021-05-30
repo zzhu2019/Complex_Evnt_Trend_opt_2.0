@@ -2,18 +2,18 @@ package src.util.CustomDS;
 
 import java.util.Arrays;
 
-public class CustomObjStack<E> {
+public class FixedSizeStack<E> {
     private int top;
     private Object[] stack;
 
 
-    public CustomObjStack(int size) {
+    public FixedSizeStack(int size) {
         top = -1;
         stack = new Object[size];
         Arrays.fill(stack, -1);
     }
 
-    public CustomObjStack() {
+    public FixedSizeStack() {
         this(10);
     }
 
@@ -24,11 +24,8 @@ public class CustomObjStack<E> {
 
 
     public void push(E x) {
-
         if(top >= stack.length - 1) {
-            Object[] newStack = new Object[(int) (1.75 * stack.length) + 1];
-            System.arraycopy(stack, 0, newStack, 0, stack.length);
-            stack = newStack;
+            throw new ArrayIndexOutOfBoundsException();
         }
         stack[++top] = x;
     }
@@ -63,5 +60,4 @@ public class CustomObjStack<E> {
         // Time complexity <= O(length)
         return Arrays.copyOfRange(stack, 0, top + 1);
     }
-
 }

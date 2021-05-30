@@ -1,5 +1,6 @@
 package src.Components;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,23 +12,28 @@ public class CompressedGraph{
 
     private boolean[] isEndPoints;
     private boolean[] isStartPoints;
+    private boolean[] isIndependentPoints;
 
     private int [] inDegrees;
 
     private int numOfStartPoint;
     private int numOfEndPoint;
+    private int numOfIndependentPoint;
 
-    private ArrayList<Integer> startPoints;
-    private ArrayList<Integer> endPoints;
+    private final ArrayList<Integer> startPoints;
+    private final ArrayList<Integer> endPoints;
+    private final ArrayList<Integer> independentPoints;
 
     public CompressedGraph(int colNum, int rowNum) {
         colIndex = new int[colNum];
         rowIndex = new int[rowNum];
         startPoints = new ArrayList<>();
         endPoints = new ArrayList<>();
+        independentPoints = new ArrayList<>();
 
         numOfEndPoint = -1;
         numOfStartPoint = -1;
+        numOfIndependentPoint = -1;
 
         Arrays.fill(colIndex, -1);
         Arrays.fill(rowIndex, -1);
@@ -41,14 +47,21 @@ public class CompressedGraph{
         return rowIndex;
     }
 
-    public int getStartPointNum(){
+    public int getStartPointNum() {
         if(numOfStartPoint == -1) loadStartPoints();
         return numOfStartPoint;
     }
 
-    public int getEndPointNum(){
+    public int getEndPointNum() {
         if(numOfEndPoint == -1) loadEndPoints();
         return numOfEndPoint;
+    }
+
+    public int getIndependentPointNum() {
+        if(numOfIndependentPoint == -1) {
+            loadIndependentPoints();
+        }
+        return numOfIndependentPoint;
     }
 
     public boolean startContains(int i){
@@ -99,33 +112,60 @@ public class CompressedGraph{
         isStartPoints = new boolean[rowIndex.length - 1];
         Arrays.fill(isStartPoints, true);
 
-        for(int i : colIndex)  isStartPoints[i] = false;
-        for(int i = 0; i < getNumVertex(); i++)
-            if(isStartPoints[i]) {
+        for(int i : colIndex) {
+            isStartPoints[i] = false;
+        }
+
+        for(int i = 0; i < getNumVertex(); i++) {
+            if (isStartPoints[i]) {
                 startPoints.add(i);
-                numOfStartPoint ++;
+                numOfStartPoint++;
             }
+        }
     }
 
     public List<Integer> getEndPoints() {
         if(endPoints.size() == 0) loadEndPoints();
-
         return endPoints;
     }
 
     private void loadEndPoints(){
         numOfEndPoint = 0;
         isEndPoints  = new boolean[rowIndex.length - 1];
-        Arrays.fill(isEndPoints, false);
 
-        for(int i = 0; i < rowIndex.length - 1; i ++)
-            if(rowIndex[i] == rowIndex[i + 1])
+        for(int i = 0; i < rowIndex.length - 1; ++i) {
+            if(rowIndex[i] == rowIndex[i + 1]) {
                 isEndPoints[i] = true;
-        for(int i = 0; i < getNumVertex(); i ++)
+            }
+        }
+
+        for(int i = 0; i < getNumVertex(); i ++) {
             if(isEndPoints[i]) {
                 endPoints.add(i);
-                numOfEndPoint ++;
+                numOfEndPoint++;
             }
+        }
+    }
+
+    public List<Integer> getIndependentPoints() {
+        if(numOfIndependentPoint == -1) loadIndependentPoints();
+        return independentPoints;
+    }
+
+    private void loadIndependentPoints() {
+        numOfIndependentPoint = 0;
+        isIndependentPoints = new boolean[rowIndex.length - 1];
+        for(int i=0; i<rowIndex.length-1; ++i) {
+            if(isEndPoints[i] && isStartPoints[i]) {
+                isIndependentPoints[i] = true;
+            }
+        }
+        for(int i=0; i<getNumVertex(); ++i) {
+            if(isIndependentPoints[i]) {
+                independentPoints.add(i);
+                numOfIndependentPoint++;
+            }
+        }
     }
 
     public int getNumDegree(int i){

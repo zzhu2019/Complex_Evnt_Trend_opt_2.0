@@ -176,13 +176,11 @@ public class DoubleAnchorTraversal extends AnchorGraphTraversal {
                 int[] startPath = (int[]) obj;
                 CustomObjStack<int[]> stack = new CustomObjStack<>();
                 stack.push(startPath);
-                DFSsubConcatenate(startPath, stack);
+                DFSSubConcatenate(startPath, stack);
             }
         }else{
-            BFSsubConcatenate(start);
+            BFSSubConcatenate(start);
         }
 
     }
-
-
 }

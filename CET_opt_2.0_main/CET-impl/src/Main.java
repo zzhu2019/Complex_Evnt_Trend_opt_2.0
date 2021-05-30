@@ -4,6 +4,7 @@ import src.Components.AlgoExecutor;
 import src.Components.CompressedGraph;
 import src.util.GraphBuilder;
 import src.util.GraphType;
+import src.util.DAGFactory;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -37,13 +38,27 @@ public class Main {
             System.out.println("""
                     -------------------------------------------------------------
                     - Do you want to enter an existing config file path? (y/n)  -
-                    - If any other char is entered, this programm will exit.    -
+                    - If any other char is entered, this program will exit.    -
                     -------------------------------------------------------------""");
             input = sc.nextLine();
             if(input.equalsIgnoreCase("n")) {
+                System.out.println("""
+                        -------------------------------------------------------------
+                        - Do you want to create a direct DAG?(y/n)                  -
+                        - The program will exit after creating the DAG.             -
+                        -------------------------------------------------------------""");
+                input = sc.nextLine();
+                if(input.equalsIgnoreCase("y")) {
+                    directDAG();
+                    return;
+                }
+
                 graphBuilder.random = true;
 
-                System.out.println("- Number of nodes for the graph:");
+                System.out.println("""
+                        -------------------------------------------------------------
+                        - Number of nodes for the graph:                            -
+                        -------------------------------------------------------------""");
                 numNodes = setIntParameter();
 
                 System.out.println("""
@@ -223,51 +238,6 @@ public class Main {
         printDegrees(degreeNum);
         System.out.println("-------------------------------------------------------------");
         degreeNum.clear();
-
-//        System.out.println("Nodes inside the DAG: ");
-//        TreeMap<Integer, Integer> interDegreeNum = new TreeMap<>(Collections.reverseOrder());
-//        for(int i = 0; i < graph.getNumVertex(); i ++) {
-//            if(!graph.startContains(i) && !graph.endContains(i)) {                              // in-DAG node
-//                int degree = graph.getNumDegree(i);
-//                if(interDegreeNum.get(degree) == null) {
-//                    interDegreeNum.put(degree, 1);
-//                }
-//                else {
-//                    interDegreeNum.replace(degree, interDegreeNum.get(degree) + 1);
-//                }
-//            }
-//        }
-//        System.out.println("Node Degree : The Number of Nodes");
-//        printDegrees(interDegreeNum);
-//        System.out.println("-------------------------------------------------------------");
-
-//        System.out.println("Nodes' IN degree: ");
-//        for(int i = 0; i < graph.getNumVertex(); i ++) {
-//            int degree = graph.getIndegree(i);
-//            if(degreeNum.get(degree) == null) {
-//                degreeNum.put(degree, 1);
-//            }
-//            else {
-//                degreeNum.replace(degree, degreeNum.get(degree) + 1);
-//            }
-//        }
-//        System.out.println("Node Degree : The Number of Nodes");
-//        printDegrees(degreeNum);
-//        System.out.println("-------------------------------------------------------------");
-
-        // Question: ----what the f**k is this????-----
-
-//        System.out.println("\n\n\nIncoming degree nodes: ");
-//        interDegreeNum.clear();
-//
-//        for(int i = 0; i < graph.getNumVertex(); i ++){
-//            int degree = graph.getIndegree(i);
-//            if(!graph.startContains(i) && !graph.endContains(i))
-//            if(interDegreeNum.get(degree) == null) interDegreeNum.put(degree, 1);
-//            else interDegreeNum.replace(degree, interDegreeNum.get(degree) + 1);
-//        }
-//        printDegrees(degreeNum);
-
     }
 
     private static void printDegrees(TreeMap<Integer, Integer> interDegreeNum) {
@@ -349,6 +319,43 @@ public class Main {
         }
 
         return value;
+    }
+
+
+    private static void directDAG() {
+        int numOfNode, numOfStarPoint, numOfEndPoint, numOfPath, stepRange;
+        System.out.println("""
+                        -------------------------------------------------------------
+                        - Number of nodes for the graph:                            -
+                        -------------------------------------------------------------""");
+        numOfNode = setIntParameter();
+
+        System.out.println("""
+                        -------------------------------------------------------------
+                        - Number of start nodes for the graph:                      -
+                        -------------------------------------------------------------""");
+        numOfStarPoint = setIntParameter();
+
+        System.out.println("""
+                        -------------------------------------------------------------
+                        - Number of end nodes for the graph:                        -
+                        -------------------------------------------------------------""");
+        numOfEndPoint = setIntParameter();
+
+        System.out.println("""
+                        -------------------------------------------------------------
+                        - Number of Paths for the graph:                            -
+                        -------------------------------------------------------------""");
+        numOfPath = setIntParameter();
+
+        System.out.println("""
+                        -------------------------------------------------------------
+                        - Max step for the graph:                                   -
+                        -------------------------------------------------------------""");
+        stepRange = setIntParameter();
+        DAGFactory fac = new DAGFactory(numOfNode, numOfStarPoint, numOfEndPoint, numOfPath, stepRange);
+        fac.createDAG();
+        fac.saveToFile();
     }
 }
 

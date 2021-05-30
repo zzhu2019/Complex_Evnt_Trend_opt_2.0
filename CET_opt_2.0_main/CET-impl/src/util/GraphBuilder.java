@@ -79,7 +79,6 @@ public class GraphBuilder {
         }
         System.out.println(sb.toString());
         if (saveFile) {
-
             saveToFile(sb.toString().trim(), num);
         }
 
@@ -143,7 +142,6 @@ public class GraphBuilder {
             }
 
             FileWriter fw = new FileWriter(file, true);
-            // why write half and then another half here?
             fw.write(string.substring(0, string.length() / 2));
             fw.write(string.substring(string.length() / 2));
             fw.close();

@@ -206,43 +206,43 @@ public class AlgoExecutor {
 
 
         // for anchor node algorithms
-        if(selection != null && this.algo.getGraph().getNumVertex() > 100) {
-            System.out.println("""
-                    -------------------------------------------------------------
-                    - Do you want to run range of anchor node num?(y/n)         -
-                    - If y is not entered, the algo will only run once.         -
-                    -------------------------------------------------------------""");
-            int upper;
-
-            if(new Scanner(System.in).nextLine().equalsIgnoreCase("y")) {
-                while(true) {
-                    System.out.println("\nDesired upper bound:");
-                    try {
-                        upper = Integer.parseInt(new Scanner(System.in).nextLine());
-                        break;
-                    }
-                    catch(Exception e) {
-                        System.out.println("Not a valid number!");
-                    }
-                }
-                // get a smaller numAnchor which is multiple of 5 as start point
-                if(numAnchor >= 5) numAnchor = numAnchor / 5 * 5;
-                if(upper < numAnchor) upper = this.algo.getGraph().getNumVertex() / 10 + 10;
-
-                for(int i = numAnchor; i <= upper; i += 5) {
-                    // set new Anchor num with an increment of evey 5 until hitting the upper
-                    numAnchor = i;
-                    ((AnchorGraphTraversal) algo).setAnchorNodes(
-                            findAnchor(algo.getGraph(), selection));
-                    runAlgo();
-                    writeTimeResult(fileName);
-
-                    System.out.println("\n- Anchor nodes " + i + " finished!\n\n" +
-                            "-------------------------------------------------------------\n\n");
-                }
-                return;
-            }
-        }
+//        if(selection != null && this.algo.getGraph().getNumVertex() > 100) {
+//            System.out.println("""
+//                    -------------------------------------------------------------
+//                    - Do you want to run range of anchor node num?(y/n)         -
+//                    - If y is not entered, the algo will only run once.         -
+//                    -------------------------------------------------------------""");
+//            int upper;
+//
+//            if(new Scanner(System.in).nextLine().equalsIgnoreCase("y")) {
+//                while(true) {
+//                    System.out.println("\nDesired upper bound:");
+//                    try {
+//                        upper = Integer.parseInt(new Scanner(System.in).nextLine());
+//                        break;
+//                    }
+//                    catch(Exception e) {
+//                        System.out.println("Not a valid number!");
+//                    }
+//                }
+//                // get a smaller numAnchor which is multiple of 5 as start point
+//                if(numAnchor >= 5) numAnchor = numAnchor / 5 * 5;
+//                if(upper < numAnchor) upper = this.algo.getGraph().getNumVertex() / 10 + 10;
+//
+//                for(int i = numAnchor; i <= upper; i += 5) {
+//                    // set new Anchor num with an increment of evey 5 until hitting the upper
+//                    numAnchor = i;
+//                    ((AnchorGraphTraversal) algo).setAnchorNodes(
+//                            findAnchor(algo.getGraph(), selection));
+//                    runAlgo();
+//                    writeTimeResult(fileName);
+//
+//                    System.out.println("\n- Anchor nodes " + i + " finished!\n\n" +
+//                            "-------------------------------------------------------------\n\n");
+//                }
+//                return;
+//            }
+//        }
         runAlgo();
         writeTimeResult(fileName);
     }
@@ -268,8 +268,6 @@ public class AlgoExecutor {
             average += algo.timeElapsed;
             runTimes[i] = algo.timeElapsed;
             System.out.println("run: " + runTimes[i]);
-            // FIXME: this code may not be that useful... :/
-//            System.gc();
         }
 
         System.out.println("\n\nAverage execution time in nanoseconds: " + average/numRun);

@@ -83,15 +83,18 @@ public abstract class GraphTraversal {
         File outputFolder = new File("OutputFiles/");
         outputFolder.mkdirs();
 
-        File outputFile = new File("OutputFiles/" + algo + "-" + "V-" + graph.getNumVertex() + new Date().toString() + ".txt");
+//        File outputFile = new File("OutputFiles/" + algo + "-" + "V-" + graph.getNumVertex()
+//                + new Date().toString() + ".txt");
+        File outputFile = new File("OutputFiles/" + algo + "-" + "V-" + graph.getNumVertex()
+                + new Date().toString().replace(':', '-') + ".txt");
         int maxLength = 0;
         try {
             outputFile.createNewFile();
             FileWriter fileWriter = new FileWriter(outputFile);
-            for (int[] singlePath : validPaths) {
-                if (maxLength < singlePath.length) maxLength = singlePath.length;
-                fileWriter.write("(" + singlePath.length + ")");
-                fileWriter.write(Arrays.toString(singlePath) + "\n");
+            for(int[] path : validPaths) {
+                if(maxLength < path.length) maxLength = path.length;
+                fileWriter.write("(" + path.length + ")");
+                fileWriter.write(Arrays.toString(path) + "\n");
             }
             fileWriter.write("Longest path has " + maxLength + " nodes.");
             fileWriter.close();
