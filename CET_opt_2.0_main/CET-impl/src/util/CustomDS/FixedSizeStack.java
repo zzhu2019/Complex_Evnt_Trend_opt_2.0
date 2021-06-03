@@ -1,16 +1,19 @@
 package src.util.CustomDS;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-public class FixedSizeStack<E> {
+public class FixedSizeStack {
     private int top;
-    private Object[] stack;
+    private final int maxSize;
+    private final List<int[]> stack;
 
 
     public FixedSizeStack(int size) {
         top = -1;
-        stack = new Object[size];
-        Arrays.fill(stack, -1);
+        maxSize = size;
+        stack = new ArrayList<>(size);
     }
 
     public FixedSizeStack() {
@@ -23,41 +26,48 @@ public class FixedSizeStack<E> {
     }
 
 
-    public void push(E x) {
-        if(top >= stack.length - 1) {
+    public void push(int[] x) {
+        if(top >= maxSize - 1) {
             throw new ArrayIndexOutOfBoundsException();
         }
-        stack[++top] = x;
+        if(stack.size()-1 <= top) stack.add(++top, x);
+        else stack.set(++top, x);
     }
 
     public int size(){
         return top+1;
     }
 
-    public E pop() {
-        if (top < 0)
+    public int[] pop() {
+        if(top < 0) {
             throw new NumberFormatException();
-
-        return (E) stack[top--];
+        }
+        // TODO: possible memory leak here
+        return stack.get(top--);
 
     }
 
-    public E peek() {
-        if (top < 0)
+    public int[] peek() {
+        if(top < 0) {
             throw new ArrayIndexOutOfBoundsException();
-
-        return (E) stack[top];
+        }
+        return stack.get(top);
 
     }
 
     public Object firstElement() {
-        if (top < 0)
+        if(top < 0) {
             throw new NumberFormatException();
-        return stack[0];
+        }
+        return stack.get(0);
     }
 
-    public Object[] getAllElements() {
-        // Time complexity <= O(length)
-        return Arrays.copyOfRange(stack, 0, top + 1);
+//    public List<int[]> getAllElements() {
+//        // Time complexity <= O(length)
+//        return Arrays.copyOfRange(stack, 0, top + 1);
+//    }
+
+    public Iterator<int[]> getIterator() {
+        return stack.iterator();
     }
 }

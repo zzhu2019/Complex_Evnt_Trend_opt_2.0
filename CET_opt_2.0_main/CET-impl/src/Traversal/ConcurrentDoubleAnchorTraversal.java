@@ -7,6 +7,7 @@ import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Stack;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,12 +17,11 @@ public class ConcurrentDoubleAnchorTraversal extends DoubleAnchorTraversal {
 
     public ExecutorService pool;
 
-
     public ConcurrentDoubleAnchorTraversal(CompressedGraph graph, boolean saveToMem, int[] anchorNodes,
                                            ConcatenateType firstLevel, ConcatenateType secondLevel, String doubleType) {
         super(graph, saveToMem, anchorNodes, firstLevel, secondLevel, doubleType);
         pool = Executors.newFixedThreadPool(14);
-
+        
     }
 
     @Override
@@ -52,7 +52,7 @@ public class ConcurrentDoubleAnchorTraversal extends DoubleAnchorTraversal {
 
 
 
-    private void bootTasks(int[] nodes, String operation){
+    private void bootTasks(int[] nodes, String operation) {
         System.out.println("Start all tasks: " + operation);
         Collection<Callable<Object>> tasks = new ArrayList<>();
         for(int node: nodes) {
@@ -76,7 +76,7 @@ public class ConcurrentDoubleAnchorTraversal extends DoubleAnchorTraversal {
             }
             for(Future<Object> future: results){
                 try {
-                    CustomObjStack<int[]> newAnchorPaths = (CustomObjStack<int[]>) future.get();
+                    Stack<int[]> newAnchorPaths = (Stack<int[]>) future.get();
                     if(newAnchorPaths.size() > 0)
                         anchorPaths.replace(newAnchorPaths.peek()[0], newAnchorPaths);
                 } catch (Exception e) {
@@ -85,15 +85,12 @@ public class ConcurrentDoubleAnchorTraversal extends DoubleAnchorTraversal {
             }
         }
         tasks.clear();
-
-
-
     }
 
     class AnchorTask implements Callable<Object> {
         int start;
         String operation;
-        AnchorTask(int i, String operation){
+        AnchorTask(int i, String operation) {
             this.operation = operation;
             start = i;
         }
