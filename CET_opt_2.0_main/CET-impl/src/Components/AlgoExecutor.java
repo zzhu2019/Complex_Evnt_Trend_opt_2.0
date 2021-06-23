@@ -45,7 +45,6 @@ public class AlgoExecutor {
      * 4. Anchor (DFS concatenate)
      * 5. M_CET
      * 6. T_CE
-     * 7. Anchor (Double leveling)
      *
      * @param selection selection of algo
      * @param graph graph
@@ -58,56 +57,28 @@ public class AlgoExecutor {
             case 4 -> addHybrid(graph, ConcatenateType.BFS);
             case 5 -> this.algo = new M_CETGraphTraversal(graph, savePathInMem);
             case 6 -> this.algo = new T_CETGraphTraversal(graph, savePathInMem);
-            case 7 -> addDoubleSeqHybrid(graph);
             default -> System.out.println("Algo unknown");
         }
     }
 
 
     private void addHybrid(CompressedGraph graph, ConcatenateType concatenateType) {
-        Scanner sc = new Scanner(System.in);
-
-        System.out.println("""
-                -------------------------------------------------------------
-                - Do you want to run it concurrently?(y/n)                  -
-                -------------------------------------------------------------""");
-        String input = sc.nextLine();
-        if(input.equals("y")) {
-            algo = new ConcurrentAnchorTraversal(graph, savePathInMem, null, concatenateType);
-        }
-        else {
-            algo = new AnchorGraphTraversal(graph, savePathInMem, null,concatenateType );
-        }
-
-        selectAnchorType(graph);
-    }
-
-
-    private void addDoubleSeqHybrid(CompressedGraph graph){
-        Scanner sc = new Scanner(System.in);
-        System.out.println("\n" +
-                "First level concatenation: 1. BFS   2. DFS");
-        ConcatenateType firstConcatenate = sc.nextLine().equals("1") ? ConcatenateType.BFS : ConcatenateType.DFS;
-
-        System.out.println("\n" +
-                "Second level concatenation: 1. BFS   2. DFS");
-        ConcatenateType secondConcatenate = sc.nextLine().equals("1") ? ConcatenateType.BFS : ConcatenateType.DFS;
-
-        System.out.println("\n" +
-                "Reduce Anchor type: 1. Half   2. Keep largest degree");
-        String reduceType = sc.nextLine().equals("1") ? "Half" : "largest";
-
-        System.out.println("\n" +
-                "Do you want to run it concurrently?(y/n)");
-        String input = sc.nextLine();
-        if(input.equalsIgnoreCase("y")) {
-            this.algo = new ConcurrentDoubleAnchorTraversal(graph, savePathInMem, null,
-                    firstConcatenate, secondConcatenate, reduceType);
-        }
-        else {
-            this.algo = new DoubleAnchorTraversal(graph, savePathInMem, null,
-                    firstConcatenate, secondConcatenate, reduceType);
-        }
+//        Scanner sc = new Scanner(System.in);
+//
+//        System.out.println("""
+//                -------------------------------------------------------------
+//                - Do you want to run it concurrently?(y/n)                  -
+//                -------------------------------------------------------------""");
+//        String input = sc.nextLine();
+//        if(input.equals("y")) {
+//            algo = new ConcurrentAnchorTraversal(graph, savePathInMem, null, concatenateType);
+//        }
+//        else {
+//            algo = new AnchorGraphTraversal(graph, savePathInMem, null,concatenateType );
+//        }
+        //----------------for test----
+        algo = new AnchorGraphTraversal(graph, savePathInMem, null,concatenateType );
+        //-----------------------------
 
         selectAnchorType(graph);
     }
@@ -176,33 +147,20 @@ public class AlgoExecutor {
 
     public void execute() {
         System.out.println("Algorithm to execute: " + this.algo.getClass().getName());
-        boolean isDoubleConcatenate = this.algo.getClass().getName().contains("Double");
 
         String concurrentPrefix = (this.algo.getClass().getName().contains("Concurrent") ? "Concurrent-" : "");
 
-        String doublePrefix = (isDoubleConcatenate ?
-            ((DoubleAnchorTraversal)this.algo).firstLevel +
-                "-"+((DoubleAnchorTraversal)this.algo).secondLevel+ "-":"")
-                .replaceAll("AnchorType.", "");
-
         String concatenatePrefix = "";
-        if(selection != null){
-            if(isDoubleConcatenate) {
-                concatenatePrefix ="-" +  ((DoubleAnchorTraversal)this.algo).firstLevel + ""
-                        + ((DoubleAnchorTraversal)this.algo).secondLevel;
-            }
-            else {
-                concatenatePrefix = "-" + ((AnchorGraphTraversal)this.algo).concatenateType;
-            }
+        if(selection != null) {
+            concatenatePrefix = "-" + ((AnchorGraphTraversal)this.algo).concatenateType;
             concatenatePrefix = concatenatePrefix.replace("ConcatenateType.", "");
         }
 
 
         String fileName = "OutputFiles/result/timeResults/" + "graph-" +
                 this.algo.getGraph().getNumVertex() + "-" +
-                this.algo.traversalType + "-" +
-                doublePrefix + concurrentPrefix +
-                selection + concatenatePrefix +  "-" + new Date().toString() +  ".txt";
+                this.algo.traversalType + "-" + concurrentPrefix +
+                selection + concatenatePrefix + "-" + new Date().toString() + ".txt";
 
 
         // for anchor node algorithms
@@ -250,11 +208,10 @@ public class AlgoExecutor {
     // TODO: possible concurrent optimization
     public void cleanGarbage(){
         System.gc();
-        if(this.algo.getClass().getName().contains("ConcurrentDouble"))
-        {
-            ((ConcurrentDoubleAnchorTraversal)this.algo).pool.shutdownNow();
-        }
-        else if(this.algo.getClass().getName().contains("ConcurrentAnchor"))
+//        if(this.algo.getClass().getName().contains("ConcurrentDouble")) {
+//            ((ConcurrentDoubleAnchorTraversal)this.algo).pool.shutdownNow();
+//        }
+        if(this.algo.getClass().getName().contains("ConcurrentAnchor"))
         {
             ((ConcurrentAnchorTraversal)this.algo).pool.shutdownNow();
         }

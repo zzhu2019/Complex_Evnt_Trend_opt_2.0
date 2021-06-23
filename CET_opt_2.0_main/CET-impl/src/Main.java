@@ -134,11 +134,11 @@ public class Main {
         printDegreeNumVSNode(graph);
 
         // End the program for testing the graph generator
-        System.out.println("""
-        -------------------------------------------------------------
-        - Terminate the program? (y/n)                              -
-        -------------------------------------------------------------""");
-        if(setBooleanParameter()) return;
+//        System.out.println("""
+//        -------------------------------------------------------------
+//        - Terminate the program? (y/n)                              -
+//        -------------------------------------------------------------""");
+//        if(setBooleanParameter()) return;
 
         // Create output directory
         File output = new File("OutputFiles/result/timeResults");
@@ -166,7 +166,6 @@ public class Main {
                     -   4.  Anchor (BFS concatenate)                            -
                     -   5.  M_CET                                               -
                     -   6.  T_CET                                               -
-                    -   7.  Anchor (Double leveling)                            -
                     -------------------------------------------------------------""");
         while(true) {
             int algoIndex = setIntParameter();
@@ -195,29 +194,29 @@ public class Main {
 
         System.out.println("\n\n- Run finished");
 
-        if(executor.isSavePathInMem()) {
-            System.out.println("""
-                    -------------------------------------------------------------
-                    - Paths are now stored in memory.                           -
-                    - Do you want to save result to files? (y/n)                -
-                    -------------------------------------------------------------""");
-
-            if(setBooleanParameter()) {
-                System.out.println("\n\nWriting results...\n\n");
-                executor.savePathsResult();
-            }
-
-            System.out.println("""
-                    -------------------------------------------------------------
-                    - Do you want to print out results? (y/n)                   -
-                    -------------------------------------------------------------""");
-            if(setBooleanParameter()) {
-                executor.printPaths();
-            }
-        }
-        else {
-            System.out.println("Warning: No results saved.");
-        }
+//        if(executor.isSavePathInMem()) {
+//            System.out.println("""
+//                    -------------------------------------------------------------
+//                    - Paths are now stored in memory.                           -
+//                    - Do you want to save result to files? (y/n)                -
+//                    -------------------------------------------------------------""");
+//
+//            if(setBooleanParameter()) {
+//                System.out.println("\n\nWriting results...\n\n");
+//                executor.savePathsResult();
+//            }
+//
+//            System.out.println("""
+//                    -------------------------------------------------------------
+//                    - Do you want to print out results? (y/n)                   -
+//                    -------------------------------------------------------------""");
+//            if(setBooleanParameter()) {
+//                executor.printPaths();
+//            }
+//        }
+//        else {
+//            System.out.println("Warning: No results saved.");
+//        }
     }
 
 

@@ -56,7 +56,7 @@ public class CustomIntStack {
         return Arrays.copyOfRange(stack, 0, top + 1);
     }
 
-    public int firstElement() {
+    public int getFirstElement() {
         if (top < 0)
             throw new NumberFormatException();
         return stack[0];

@@ -13,6 +13,7 @@ public class DAGFactory {
     private final int numOfPath;
     private final int stepRange;
     boolean[][] matrix;
+    int[] degree;
 
 
     public DAGFactory(int numOfNode, int numOfStartPoint, int numOfEndPoint, int numOfPath, int stepRange) {
@@ -22,21 +23,32 @@ public class DAGFactory {
         this.numOfPath = numOfPath;
         this.stepRange = stepRange;
         this.matrix = new boolean[numOfNode][numOfNode];
+        this.degree = new int[numOfNode];
     }
 
 
     public void createDAG() {
-        int pathPerStartNode = (int) Math.floor((double)numOfPath/numOfStartPoint);
+        int startFromBeginning = (int) (numOfPath*0.5);
+        int pathPerStartNode = (int) Math.floor((double)startFromBeginning/numOfStartPoint);
         for(int i=0; i<numOfStartPoint; ++i) {
             for(int j=0; j<pathPerStartNode; ++j) {
-                designRandomPath(i);
+                randomPathForStartNode(i);
             }
         }
+
+        int startFromMiddle = numOfPath-startFromBeginning;
+        int count = 0;
+        do {
+            int middleNode = (int) (Math.random()*(numOfNode-numOfStartPoint-numOfEndPoint)) + numOfStartPoint;
+            if(degree[middleNode] != 0) {
+                randomPathForMiddleNode(middleNode);
+                count++;
+            }
+        } while(count < startFromMiddle);
     }
 
 
-    private void designRandomPath(int start) {
-        // TODO: design a random path
+    private void randomPathForStartNode(int start) {
         int currPos = start;
         while(true) {
             // make the step ranges from 1 to stepRange (integer)
@@ -55,12 +67,37 @@ public class DAGFactory {
                 matrix[currPos][endPos] = true;
                 break;
             }
+            degree[currPos]++;
+        }
+    }
+
+
+    private void randomPathForMiddleNode(int start) {
+        int currPos = start;
+        while(true) {
+            int step = (int) Math.floor((Math.random()*stepRange)) + 1;
+            int nextPos = currPos+step;
+            if(nextPos < numOfNode - numOfEndPoint) {
+                matrix[currPos][nextPos] = true;
+                currPos = nextPos;
+                degree[currPos]++;
+            }
+            else if(nextPos < numOfNode) {
+                matrix[currPos][nextPos] = true;
+                degree[currPos]++;
+                break;
+            }
+            else {
+                int endPos = numOfNode - (int) Math.floor(Math.random()*numOfEndPoint) - 1;
+                matrix[currPos][endPos] = true;
+                degree[currPos]++;
+                break;
+            }
         }
     }
 
 
     public void saveToFile() {
-        // TODO: save the DAG to file
         String fileName = "Grid" + numOfNode+"DAGFactory.txt";
         File file = new File(fileName);
 
