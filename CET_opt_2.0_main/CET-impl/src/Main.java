@@ -194,29 +194,29 @@ public class Main {
 
         System.out.println("\n\n- Run finished");
 
-//        if(executor.isSavePathInMem()) {
-//            System.out.println("""
-//                    -------------------------------------------------------------
-//                    - Paths are now stored in memory.                           -
-//                    - Do you want to save result to files? (y/n)                -
-//                    -------------------------------------------------------------""");
-//
-//            if(setBooleanParameter()) {
-//                System.out.println("\n\nWriting results...\n\n");
-//                executor.savePathsResult();
-//            }
-//
-//            System.out.println("""
-//                    -------------------------------------------------------------
-//                    - Do you want to print out results? (y/n)                   -
-//                    -------------------------------------------------------------""");
-//            if(setBooleanParameter()) {
-//                executor.printPaths();
-//            }
-//        }
-//        else {
-//            System.out.println("Warning: No results saved.");
-//        }
+        if(executor.isSavePathInMem()) {
+            System.out.println("""
+                    -------------------------------------------------------------
+                    - Paths are now stored in memory.                           -
+                    - Do you want to save result to files? (y/n)                -
+                    -------------------------------------------------------------""");
+
+            if(setBooleanParameter()) {
+                System.out.println("\n\nWriting results...\n\n");
+                executor.savePathsResult();
+            }
+
+            System.out.println("""
+                    -------------------------------------------------------------
+                    - Do you want to print out results? (y/n)                   -
+                    -------------------------------------------------------------""");
+            if(setBooleanParameter()) {
+                executor.printPaths();
+            }
+        }
+        else {
+            System.out.println("Warning: No results saved.");
+        }
     }
 
 

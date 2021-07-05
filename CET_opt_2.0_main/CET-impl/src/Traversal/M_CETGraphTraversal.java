@@ -9,7 +9,6 @@ public class M_CETGraphTraversal extends GraphTraversal {
     public M_CETGraphTraversal(CompressedGraph graph, boolean saveToMem) {
         super(graph, saveToMem);
         traversalType = TraversalType.M_CET;
-
     }
 
     @Override
