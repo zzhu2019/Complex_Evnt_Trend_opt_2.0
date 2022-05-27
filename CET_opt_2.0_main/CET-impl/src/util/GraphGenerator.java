@@ -28,9 +28,11 @@ class GraphGenerator {
         for(boolean[] booleans : matrix) {
             for(int j = 0; j < matrix.length; j++) {
                 if(booleans[j]) {
+                    // colIndex stores the edge end node
                     colIndex[colCounter++] = j;
                 }
             }
+            // rowIndex stores the end index for edges from a node
             rowIndex[rowCounter++] = colCounter;
         }
 

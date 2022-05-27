@@ -25,7 +25,10 @@ public class FixedSizeStack<E> {
 
     public void push(E x) {
         if(top >= stack.length - 1) {
-            throw new ArrayIndexOutOfBoundsException();
+//            throw new ArrayIndexOutOfBoundsException();
+            Object[] newStack = new Object[(int) (1.75 * stack.length) + 1];
+            System.arraycopy(stack, 0, newStack, 0, stack.length);
+            stack = newStack;
         }
         stack[++top] = x;
     }

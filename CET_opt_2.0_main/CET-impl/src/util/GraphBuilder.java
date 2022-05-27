@@ -145,8 +145,7 @@ public class GraphBuilder {
             fw.write(string.substring(0, string.length() / 2));
             fw.write(string.substring(string.length() / 2));
             fw.close();
-        }
-        catch(IOException e) {
+        } catch(IOException e) {
             e.printStackTrace();
         }
     }

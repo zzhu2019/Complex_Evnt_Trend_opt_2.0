@@ -10,7 +10,7 @@ import java.util.*;
 public abstract class GraphTraversal {
     // TODO： add get method for class attributes
     CompressedGraph graph;
-    ArrayList<int[]> validPaths;
+    ArrayList<short[]> validPaths;
     public TraversalType traversalType;
     public long timeElapsed;
 
@@ -26,7 +26,7 @@ public abstract class GraphTraversal {
         this.pathNum = 0;
     }
 
-    //TODO: identify patterns of a path
+    // TODO: identify patterns of a path
 //    public boolean identifyPattern(ArrayList<Integer> path) {
 //        return path != null;
 //    }
@@ -34,12 +34,15 @@ public abstract class GraphTraversal {
     /**
      * This method is for multiple runs of the same algorithm
      */
-    void clearAll(){
+    void clearAll() {
         if(validPaths.size() > 0) validPaths.clear();
         pathNum = 0;
     }
 
-
+    /**
+     * Get the graph
+     * @return the graph
+     */
     public CompressedGraph getGraph() {
         return graph;
     }
@@ -48,9 +51,12 @@ public abstract class GraphTraversal {
      * The abstract method
      * @param i the start node index
      */
-    public abstract void traversal(int i);
+    public abstract void traversal(short i);
 
 
+    /**
+     * Execute the algorithm
+     */
     public void execute() {
         clearAll();
         System.out.println("Number of start points: " + graph.getStartPointNum());
@@ -58,24 +64,27 @@ public abstract class GraphTraversal {
 
         long startTime = System.nanoTime();
         for(int start : graph.getStartPoints()) {
-            if(graph.getNumVertex() > 5000) {
-                System.out.println("Execute: " + (i++));
-                System.out.println(new Time(System.currentTimeMillis()).toString() + " - start on: " + start
-                        + " with degree " + graph.getNumDegree(start));
-            }
+            System.out.println("Execute start node: " + (i++) + "/" + graph.getStartPointNum());
+            System.out.println(new Time(System.currentTimeMillis()).toString() + " - start on: " + start);
 
-            traversal(start);
+            traversal((short) start);
         }
         long endTime = System.nanoTime();
         timeElapsed = endTime - startTime;
         System.out.println("path num: " + pathNum);
     }
 
+    /**
+     * Save the results without entering the algo type
+     */
     public void saveResults() {
         saveResults(traversalType.toString());
     }
 
-
+    /**
+     * Save the results
+     * @param algo: the algo type
+     */
     void saveResults(String algo) {
         System.out.println("Write to file...");
         System.out.println(validPaths.size() + " paths to be written.");
@@ -83,27 +92,29 @@ public abstract class GraphTraversal {
         File outputFolder = new File("OutputFiles/");
         outputFolder.mkdirs();
 
-//        File outputFile = new File("OutputFiles/" + algo + "-" + "V-" + graph.getNumVertex()
-//                + new Date().toString() + ".txt");
         File outputFile = new File("OutputFiles/" + algo + "-" + "V-" + graph.getNumVertex()
                 + new Date().toString().replace(':', '-') + ".txt");
         int maxLength = 0;
         try {
             outputFile.createNewFile();
             FileWriter fileWriter = new FileWriter(outputFile);
-            for(int[] path : validPaths) {
+            for(short[] path : validPaths) {
                 if(maxLength < path.length) maxLength = path.length;
                 fileWriter.write("(" + path.length + ")");
                 fileWriter.write(Arrays.toString(path) + "\n");
             }
             fileWriter.write("Longest path has " + maxLength + " nodes.");
             fileWriter.close();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println(algo + " has error: " + e.toString());
         }
     }
 
+    /**
+     * ?
+     * @param stack: ?
+     * @return ?
+     */
     int[] getPath(Stack<Integer> stack) {
         Enumeration enumeration = stack.elements();
         int[] path = new int[stack.size()];
@@ -114,12 +125,20 @@ public abstract class GraphTraversal {
         return path;
     }
 
+    /**
+     * Print all paths
+     */
     public void printPaths() {
-        for(int[] singlePath : validPaths) {
+        for(short[] singlePath : validPaths) {
             System.out.println(traversalType.toString() + ": " + Arrays.toString(singlePath));
         }
     }
 
+    /**
+     * ?
+     * @param pathList: ?
+     * @return ?
+     */
     int[] getPath(ArrayList<Integer> pathList) {
         int[] path = new int[pathList.size()];
 

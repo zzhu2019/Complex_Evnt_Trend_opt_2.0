@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-public class CompressedGraph{
+public class CompressedGraph {
     public int[] colIndex;
     public int[] rowIndex;
 
@@ -20,9 +20,9 @@ public class CompressedGraph{
     private int numOfEndPoint;
     private int numOfIndependentPoint;
 
-    private final ArrayList<Integer> startPoints;
-    private final ArrayList<Integer> endPoints;
-    private final ArrayList<Integer> independentPoints;
+    private final ArrayList<Short> startPoints;
+    private final ArrayList<Short> endPoints;
+    private final ArrayList<Short> independentPoints;
 
     public CompressedGraph(int colNum, int rowNum) {
         colIndex = new int[colNum];
@@ -102,7 +102,7 @@ public class CompressedGraph{
         return inDegrees[i];
     }
 
-    public List<Integer> getStartPoints() {
+    public List<Short> getStartPoints() {
         if(startPoints.size() == 0) loadStartPoints();
         return startPoints;
     }
@@ -116,15 +116,15 @@ public class CompressedGraph{
             isStartPoints[i] = false;
         }
 
-        for(int i = 0; i < getNumVertex(); i++) {
-            if (isStartPoints[i]) {
+        for(short i = 0; i < getNumVertex(); i++) {
+            if(isStartPoints[i]) {
                 startPoints.add(i);
                 numOfStartPoint++;
             }
         }
     }
 
-    public List<Integer> getEndPoints() {
+    public List<Short> getEndPoints() {
         if(endPoints.size() == 0) loadEndPoints();
         return endPoints;
     }
@@ -139,7 +139,7 @@ public class CompressedGraph{
             }
         }
 
-        for(int i = 0; i < getNumVertex(); i ++) {
+        for(short i = 0; i < getNumVertex(); i++) {
             if(isEndPoints[i]) {
                 endPoints.add(i);
                 numOfEndPoint++;
@@ -147,7 +147,7 @@ public class CompressedGraph{
         }
     }
 
-    public List<Integer> getIndependentPoints() {
+    public List<Short> getIndependentPoints() {
         if(numOfIndependentPoint == -1) loadIndependentPoints();
         return independentPoints;
     }
@@ -160,7 +160,7 @@ public class CompressedGraph{
                 isIndependentPoints[i] = true;
             }
         }
-        for(int i=0; i<getNumVertex(); ++i) {
+        for(short i=0; i<getNumVertex(); ++i) {
             if(isIndependentPoints[i]) {
                 independentPoints.add(i);
                 numOfIndependentPoint++;

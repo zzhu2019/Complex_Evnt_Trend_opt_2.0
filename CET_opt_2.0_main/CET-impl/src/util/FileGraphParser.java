@@ -153,6 +153,17 @@ class FileGraphParser {
             }
             myReader.close();
 
+            for(int i=0; i<nodeNum; ++i) {
+                for(int j=0; j<nodeNum; ++j) {
+                    if(i>=j && grid[i][j]) {
+                        System.out.println("row "+i +" col "+j);
+                        System.out.println("DAG check failed!");
+                    }
+                }
+            }
+
+            System.out.println("DAG check passed!");
+
         }
         catch(Exception e) {
             System.out.println("File parsing error.");

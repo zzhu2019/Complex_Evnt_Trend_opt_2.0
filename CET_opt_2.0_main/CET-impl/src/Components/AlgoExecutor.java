@@ -44,7 +44,7 @@ public class AlgoExecutor {
      * 3. Anchor (BFS concatenate)
      * 4. Anchor (DFS concatenate)
      * 5. M_CET
-     * 6. T_CE
+     * 6. T_CET
      *
      * @param selection selection of algo
      * @param graph graph
@@ -55,8 +55,6 @@ public class AlgoExecutor {
             case 2 -> this.algo = new DFSGraphTraversal(graph, savePathInMem);
             case 3 -> addHybrid(graph, ConcatenateType.DFS);
             case 4 -> addHybrid(graph, ConcatenateType.BFS);
-            case 5 -> this.algo = new M_CETGraphTraversal(graph, savePathInMem);
-            case 6 -> this.algo = new T_CETGraphTraversal(graph, savePathInMem);
             default -> System.out.println("Algo unknown");
         }
     }
@@ -123,10 +121,10 @@ public class AlgoExecutor {
     }
 
 
-    private int[] findAnchor(CompressedGraph graph, AnchorType selection) {
+    private short[] findAnchor(CompressedGraph graph, AnchorType selection) {
         AnchorProcessor anchorProcessor = new AnchorProcessor(graph);
         // Anchor nodes contain start nodes
-        int[] anchors = anchorProcessor.findAnchors(selection, numAnchor);
+        short[] anchors = anchorProcessor.findAnchors(selection, numAnchor);
 
         System.out.println("\n[source node, node's degree]: ");
         for(int i = 0; i < graph.getStartPointNum(); i++) {
@@ -211,10 +209,9 @@ public class AlgoExecutor {
 //        if(this.algo.getClass().getName().contains("ConcurrentDouble")) {
 //            ((ConcurrentDoubleAnchorTraversal)this.algo).pool.shutdownNow();
 //        }
-        if(this.algo.getClass().getName().contains("ConcurrentAnchor"))
-        {
-            ((ConcurrentAnchorTraversal)this.algo).pool.shutdownNow();
-        }
+//        if(this.algo.getClass().getName().contains("ConcurrentAnchor")) {
+//            ((ConcurrentAnchorTraversal)this.algo).pool.shutdownNow();
+//        }
     }
 
     private void runAlgo() {

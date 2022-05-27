@@ -2,7 +2,6 @@ package src.util;
 import src.Components.CompressedGraph;
 
 import java.util.*;
-import java.util.stream.IntStream;
 
 public class AnchorProcessor {
 
@@ -14,7 +13,7 @@ public class AnchorProcessor {
     }
 
 
-    public int[] findAnchors(AnchorType type, int anchorNum) {
+    public short[] findAnchors(AnchorType type, int anchorNum) {
         System.out.println("- Find anchor points for this graph...");
 
         if(type.equals(AnchorType.RANDOM)) return findRandomAnchors(anchorNum);
@@ -26,9 +25,13 @@ public class AnchorProcessor {
         return null;
     }
 
-
-    private int[] findRandomAnchors(int anchorNum) {
-        int[] anchorList = new int[graph.getStartPointNum() + anchorNum];
+    /***
+     * Find anchor nodes randomly and place them in an array
+     * @param anchorNum
+     * @return the list of anchor nodes
+     */
+    private short[] findRandomAnchors(int anchorNum) {
+        short[] anchorList = new short[graph.getStartPointNum() + anchorNum];
 
         for(int i = 0; i < graph.getStartPointNum(); i++) {
             anchorList[i] = graph.getStartPoints().get(i);
@@ -36,9 +39,11 @@ public class AnchorProcessor {
         Random random = new Random();
         int counter = 0;
         while(counter < anchorNum) {
-            int anchor = random.nextInt(graph.getNumVertex());
+            short anchor = (short) random.nextInt(graph.getNumVertex());
 
-            if(IntStream.of(anchorList).anyMatch(x -> x == anchor)) continue;
+//            if(IntStream.of(anchorList).anyMatch(x -> x == anchor)) continue;
+            if(isAnchored(anchorList, anchor))
+                continue;
 
             anchorList[graph.getStartPointNum() + counter++] = anchor;
         }
@@ -46,16 +51,16 @@ public class AnchorProcessor {
         return anchorList;
     }
 
-    private int[] findDegreeAnchors(int anchorNum, String anchorType){
+    private short[] findDegreeAnchors(int anchorNum, String anchorType){
         // only put start points into it, not end points
-        int[] anchorList = new int[graph.getStartPointNum() + anchorNum];
+        short[] anchorList = new short[graph.getStartPointNum() + anchorNum];
 
         for(int i = 0; i < graph.getStartPointNum(); i++) {
             anchorList[i] = graph.getStartPoints().get(i);
         }
 
-        HashMap<Integer, Integer> verticesByDegree = new HashMap<>();
-        for(int i = 0; i < graph.getNumVertex(); i++) {
+        HashMap<Short, Integer> verticesByDegree = new HashMap<>();
+        for(short i = 0; i < graph.getNumVertex(); i++) {
             if(graph.startContains(i) || graph.endContains(i)) {
                 continue;
             }
@@ -63,7 +68,7 @@ public class AnchorProcessor {
             verticesByDegree.put(i, graph.getNumDegree(i)); // TODO: compare performance later
         }
 
-        TreeMap<Integer, List<Integer>> degreeVertex = sortMap(verticesByDegree);
+        TreeMap<Integer, List<Short>> degreeVertex = sortMap(verticesByDegree);
         anchorList = findAnchorNodesByDegree(anchorNum, degreeVertex, anchorList, anchorType);
         return anchorList;
     }
@@ -77,25 +82,23 @@ public class AnchorProcessor {
      * @param anchorType        the anchor nodes selection type
      * @return a full list of anchor nodes
      */
-    private int[] findAnchorNodesByDegree(int anchorNum, TreeMap<Integer, List<Integer>> verticesByDegree,
-                                          int[] anchorList, String anchorType) {
+    private short[] findAnchorNodesByDegree(int anchorNum, TreeMap<Integer, List<Short>> verticesByDegree,
+                                          short[] anchorList, String anchorType) {
         int start = graph.getStartPointNum();
-        Set<Map.Entry<Integer, List<Integer>>> entrySet;
+        Set<Map.Entry<Integer, List<Short>>> entrySet;
         if(anchorType.equalsIgnoreCase("L")) {
             entrySet = verticesByDegree.descendingMap().entrySet();
-        }
-        else {
+        } else {
             entrySet = verticesByDegree.entrySet();
         }
 
-        for(Map.Entry<Integer, List<Integer>> entry : entrySet) {
+        for(Map.Entry<Integer, List<Short>> entry : entrySet) {
             if(anchorNum <= 0) break;
 
-            for(int i : entry.getValue()) {
+            for(short i : entry.getValue()) {
                 if(start < anchorList.length) {
                     anchorList[start++] = i;
-                }
-                else break;
+                } else break;
             }
 
             anchorNum -= entry.getValue().size();
@@ -111,11 +114,11 @@ public class AnchorProcessor {
      * @param   map to sort by value
      * @return map sorted by value
      */
-    private TreeMap<Integer, List<Integer>> sortMap(HashMap<Integer, Integer> map) {
+    private TreeMap<Integer, List<Short>> sortMap(HashMap<Short, Integer> map) {
 
-        TreeMap<Integer, List<Integer>> temp = new TreeMap<>();
+        TreeMap<Integer, List<Short>> temp = new TreeMap<>();
 
-        for(Map.Entry<Integer, Integer> element : map.entrySet()) {
+        for(Map.Entry<Short, Integer> element : map.entrySet()) {
             temp.computeIfAbsent(element.getValue(), k -> new ArrayList<>());
             temp.get(element.getValue()).add(element.getKey());
         }
@@ -123,9 +126,9 @@ public class AnchorProcessor {
     }
 
 
-    private int[] findEquallyDistributedAnchors(int anchorNum) {
-        int[] anchorList = new int[graph.getStartPointNum() + anchorNum];
-        Stack<Integer> topStack = new Stack<>();
+    private short[] findEquallyDistributedAnchors(int anchorNum) {
+        short[] anchorList = new short[graph.getStartPointNum() + anchorNum];
+        Stack<Short> topStack = new Stack<>();
         boolean[] visited = new boolean[graph.getNumVertex()];
         Arrays.fill(visited, false);
 
@@ -137,11 +140,11 @@ public class AnchorProcessor {
 
         // Reverse the order of elements in the stack
 //        ArrayList<Integer> results = new ArrayList<>(graph.getStartPoints());
-        ArrayList<Integer> results = new ArrayList<>();
+        ArrayList<Short> results = new ArrayList<>();
 
         // Add non-end nodes secondly
         while(!topStack.empty()) {
-            int r = topStack.pop();
+            short r = topStack.pop();
             if(!graph.getStartPoints().contains(r) && !graph.getEndPoints().contains(r)) {
                 results.add(r);
             }
@@ -153,7 +156,7 @@ public class AnchorProcessor {
             anchorNum = (graph.getNumVertex() - graph.getEndPointNum() - graph.getStartPointNum()
                     + graph.getIndependentPointNum()) / 3;
             System.out.println("The number of anchor nodes is too large! Reduced to " + anchorNum);
-            anchorList = new int[graph.getStartPointNum() + anchorNum];
+            anchorList = new short[graph.getStartPointNum() + anchorNum];
         }
 
         // Add all start nodes in the anchor node lists firstly
@@ -179,7 +182,7 @@ public class AnchorProcessor {
      * @param visited   a boolean array marks a node true if this is fully accessed
      * @param stack     the result stack
      */
-    private void topologicalSort(int s, boolean[] visited, Stack<Integer> stack) {
+    private void topologicalSort(int s, boolean[] visited, Stack<Short> stack) {
         // TODO: can I use some of the travelling results?
         visited[s] = true;
         // For node s, call all its neighbours
@@ -190,6 +193,14 @@ public class AnchorProcessor {
             }
         }
         // Push node s into the stack once the FOR loop finishes
-        stack.push(s);
+        stack.push((short) s);
+    }
+
+    private boolean isAnchored(short[] anchorList, short idx) {
+        for(short element : anchorList) {
+            if(element == idx)
+                return true;
+        }
+        return false;
     }
 }

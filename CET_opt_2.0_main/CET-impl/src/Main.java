@@ -100,8 +100,7 @@ public class Main {
                 graphBuilder.setMaxDegree(setIntParameter());
 
                 graph = graphBuilder.generateRandomGraph(numNodes);
-            }
-            else if(input.equalsIgnoreCase("y")) {
+            } else if(input.equalsIgnoreCase("y")) {
                 while(true) {
                     System.out.println("""
                             -------------------------------------------------------------
@@ -120,10 +119,15 @@ public class Main {
                     System.out.println("exiting the program...");
                     return;
                 }
-            }
-            else {
+            } else {
                System.out.println("Please run the program again and input a y/n.");
                return;
+            }
+        }
+
+        for(int i= graph.getNumVertex() - graph.getEndPointNum(); i<graph.getNumVertex(); ++i) {
+            if(graph.getNumDegree(i) != 0) {
+                System.out.println("Error!!!!");
             }
         }
 
@@ -193,6 +197,8 @@ public class Main {
         executor.cleanGarbage();
 
         System.out.println("\n\n- Run finished");
+        System.out.println("Memeory usage:" + (Runtime.getRuntime().totalMemory()/1000000) +
+                "/" +(Runtime.getRuntime().maxMemory()/1000000));
 
         if(executor.isSavePathInMem()) {
             System.out.println("""
@@ -227,13 +233,12 @@ public class Main {
             int degree = graph.getNumDegree(i);
             if(degreeNum.get(degree) == null) {
                 degreeNum.put(degree, 1);
-            }
-            else {
+            } else {
                 degreeNum.replace(degree, degreeNum.get(degree) + 1);
             }
         }
         System.out.println("-------------------------------------------------------------");
-        System.out.println("Node Degree : The Number of Nodes");
+        System.out.println("Node Out Degree : The Number of Nodes");
         printDegrees(degreeNum);
         System.out.println("-------------------------------------------------------------");
         degreeNum.clear();
@@ -286,8 +291,7 @@ public class Main {
                 value = sc.nextDouble();
                 if(value > 0) break;
                 else System.out.println("Not a valid number!");
-            }
-            catch(Exception e) {
+            } catch(Exception e) {
                 System.out.println("Not a valid number!");
             }
         }
@@ -307,12 +311,10 @@ public class Main {
             if(input.equalsIgnoreCase("y")) {
                 value = true;
                 break;
-            }
-            else if(input.equalsIgnoreCase("n")) {
+            } else if(input.equalsIgnoreCase("n")) {
                 value = false;
                 break;
-            }
-            else {
+            } else {
                 System.out.println("Not a valid option!");
             }
         }
@@ -322,7 +324,7 @@ public class Main {
 
 
     private static void directDAG() {
-        int numOfNode, numOfStarPoint, numOfEndPoint, numOfPath, stepRange;
+        int numOfNode, numOfStartPoint, numOfEndPoint, numOfPath, stepRange, maxInDegree, maxOutDegree;
         System.out.println("""
                         -------------------------------------------------------------
                         - Number of nodes for the graph:                            -
@@ -333,7 +335,7 @@ public class Main {
                         -------------------------------------------------------------
                         - Number of start nodes for the graph:                      -
                         -------------------------------------------------------------""");
-        numOfStarPoint = setIntParameter();
+        numOfStartPoint = setIntParameter();
 
         System.out.println("""
                         -------------------------------------------------------------
@@ -352,9 +354,22 @@ public class Main {
                         - Max step for the graph:                                   -
                         -------------------------------------------------------------""");
         stepRange = setIntParameter();
-        DAGFactory fac = new DAGFactory(numOfNode, numOfStarPoint, numOfEndPoint, numOfPath, stepRange);
+
+        System.out.println("""
+                        -------------------------------------------------------------
+                        - Max Outdegree for all nodes:                               -
+                        -------------------------------------------------------------""");
+        maxOutDegree = setIntParameter();
+
+        System.out.println("""
+                        -------------------------------------------------------------
+                        - Max Indegree for all nodes:                               -
+                        -------------------------------------------------------------""");
+        maxInDegree = setIntParameter();
+
+        DAGFactory fac = new DAGFactory(numOfNode, numOfStartPoint, numOfEndPoint, numOfPath, stepRange,
+                maxInDegree, maxOutDegree);
         fac.createDAG();
         fac.saveToFile();
     }
 }
-
