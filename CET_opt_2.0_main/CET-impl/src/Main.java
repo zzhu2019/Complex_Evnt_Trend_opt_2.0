@@ -168,8 +168,6 @@ public class Main {
                     -   2.  Normal DFS                                          -
                     -   3.  Anchor (DFS concatenate)                            -
                     -   4.  Anchor (BFS concatenate)                            -
-                    -   5.  M_CET                                               -
-                    -   6.  T_CET                                               -
                     -------------------------------------------------------------""");
         while(true) {
             int algoIndex = setIntParameter();

@@ -43,8 +43,6 @@ public class AlgoExecutor {
      * 2. Normal DFS
      * 3. Anchor (BFS concatenate)
      * 4. Anchor (DFS concatenate)
-     * 5. M_CET
-     * 6. T_CET
      *
      * @param selection selection of algo
      * @param graph graph
