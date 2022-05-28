@@ -20,7 +20,6 @@ Util="$DagGenTool $DS $Generator $FileParser $Type $GraphBuilder $RandomTimeGen 
 TraversalAlgos=CET-impl/src/Traversal/*.java
 
 #Main executor
-Executor=CET-impl/src/AlgoExecutor.java
 Main=CET-impl/src/Main.java
 
 
