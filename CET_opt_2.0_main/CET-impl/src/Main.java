@@ -26,6 +26,7 @@ public class Main {
         GraphBuilder graphBuilder = new GraphBuilder();
         String input;
         int numNodes;
+        int isolatedNodeCount = 0;
         CompressedGraph graph;
         Scanner sc = new Scanner(System.in);
 
@@ -127,9 +128,11 @@ public class Main {
 
         for(int i= graph.getNumVertex() - graph.getEndPointNum(); i<graph.getNumVertex(); ++i) {
             if(graph.getNumDegree(i) != 0) {
-                System.out.println("Error!!!!");
+                isolatedNodeCount++;
+
             }
         }
+        System.out.println("Isolated Node Count: " + isolatedNodeCount);
 
         System.out.println("\n\nGraph generated!\n\n");
 
