@@ -43,6 +43,10 @@ public class AlgoExecutor {
      * 2. Normal DFS
      * 3. Anchor (BFS concatenate)
      * 4. Anchor (DFS concatenate)
+     * 5. Concurrent Anchor (1.DFS 2.DFS)
+     * 6. Concurrent Anchor (1.BFS 2.DFS)
+     * 7. Concurrent Anchor (1.DFS 2.BFS)
+     * 8. Concurrent Anchor (1.DFS 2.BFS)
      *
      * @param selection selection of algo
      * @param graph graph
@@ -59,22 +63,7 @@ public class AlgoExecutor {
 
 
     private void addHybrid(CompressedGraph graph, ConcatenateType concatenateType) {
-//        Scanner sc = new Scanner(System.in);
-//
-//        System.out.println("""
-//                -------------------------------------------------------------
-//                - Do you want to run it concurrently?(y/n)                  -
-//                -------------------------------------------------------------""");
-//        String input = sc.nextLine();
-//        if(input.equals("y")) {
-//            algo = new ConcurrentAnchorTraversal(graph, savePathInMem, null, concatenateType);
-//        }
-//        else {
-//            algo = new AnchorGraphTraversal(graph, savePathInMem, null,concatenateType );
-//        }
-        //----------------for test----
         algo = new AnchorGraphTraversal(graph, savePathInMem, null,concatenateType );
-        //-----------------------------
 
         selectAnchorType(graph);
     }

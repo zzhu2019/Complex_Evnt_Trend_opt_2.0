@@ -171,6 +171,10 @@ public class Main {
                     -   2.  Normal DFS                                          -
                     -   3.  Anchor (DFS concatenate)                            -
                     -   4.  Anchor (BFS concatenate)                            -
+                    -   5.  Concurrent Anchor (1.DFS 2.DFS)                     -
+                    -   6.  Concurrent Anchor (1.BFS 2.DFS)                     -
+                    -   7.  Concurrent Anchor (1.DFS 2.BFS)                     -
+                    -   8.  Concurrent Anchor (1.BFS 2.BFS)                     -
                     -------------------------------------------------------------""");
         while(true) {
             int algoIndex = setIntParameter();
@@ -194,6 +198,7 @@ public class Main {
 
         System.out.println("Start executing...\n\n");
 
+        // execute the algorithm here
         executor.execute();
         executor.cleanGarbage();
 

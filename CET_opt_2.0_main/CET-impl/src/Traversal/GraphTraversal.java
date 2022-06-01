@@ -26,11 +26,6 @@ public abstract class GraphTraversal {
         this.pathNum = 0;
     }
 
-    // TODO: identify patterns of a path
-//    public boolean identifyPattern(ArrayList<Integer> path) {
-//        return path != null;
-//    }
-
     /**
      * This method is for multiple runs of the same algorithm
      */
