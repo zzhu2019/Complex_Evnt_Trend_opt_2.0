@@ -118,4 +118,6 @@ public class ShortArray {
     public int getLast() {
         return queue[currentPos - 1];
     }
+
+    public int getFirst() { return queue[0]; }
 }

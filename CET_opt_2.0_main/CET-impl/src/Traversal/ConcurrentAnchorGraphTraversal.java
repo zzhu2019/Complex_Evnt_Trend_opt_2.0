@@ -2,11 +2,17 @@ package src.Traversal;
 
 import src.Components.CompressedGraph;
 import src.util.CustomDS.CustomObjStack;
+import src.Traversal.ConcurrentRunnables.*;
 
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class ConcurrentAnchorGraphTraversal extends GraphTraversal {
     short[] anchorNodes;
@@ -16,6 +22,15 @@ public class ConcurrentAnchorGraphTraversal extends GraphTraversal {
     public ConcatenateType concatenateType;
     public TraversalType traversalType;
     private static final int STACK_NUM = 10;
+    private long[] pathNumArray;
+    private ArrayList<ArrayList<short[]>> validPathsArray;
+    final short optimalThreadNum = (short) Runtime.getRuntime().availableProcessors();
+    // default is using the non-fair mode
+    private ReadWriteLock anchorPathsForStartNodesLock = new ReentrantReadWriteLock();
+    private ReadWriteLock anchorPathsForMidNodesLock = new ReentrantReadWriteLock();
+    Lock anchorPathsForStartNodesWLock = anchorPathsForStartNodesLock.writeLock();
+    Lock anchorPathsForStartNodesRLock = anchorPathsForStartNodesLock.readLock();
+    Lock anchorPathsForMidNodesWLock = anchorPathsForMidNodesLock.writeLock();
 
     /***
      * The constructor
@@ -31,9 +46,11 @@ public class ConcurrentAnchorGraphTraversal extends GraphTraversal {
         this.traversalType = ttype;
         this.concatenateType = ctype;
         this.anchorNodes = anchorNodes;
-        anchorPathsForStartNodes = new HashMap<>();
-        anchorPathsForMidNodes = new HashMap<>();
+//        anchorPathsForStartNodes = new HashMap<>();
+//        anchorPathsForMidNodes = new HashMap<>();
         isAnchor = new boolean[graph.getNumVertex()];
+//        pathNumArray = new long[optimalThreadNum];
+        validPathsArray = new ArrayList<ArrayList<short[]>>(optimalThreadNum);
     }
 
     /***
@@ -46,6 +63,10 @@ public class ConcurrentAnchorGraphTraversal extends GraphTraversal {
             } else {
                 anchorPathsForMidNodes.put(anchorNode, new CustomObjStack<short[]>());
             }
+        }
+
+        for(int i = 0; i < validPathsArray.size(); ++i) {
+            validPathsArray.add(new ArrayList<short[]>());
         }
     }
 
@@ -84,6 +105,9 @@ public class ConcurrentAnchorGraphTraversal extends GraphTraversal {
         validPaths = new ArrayList<>();
         anchorPathsForMidNodes = new HashMap<>();
         anchorPathsForStartNodes = new HashMap<>();
+        pathNumArray = new long[optimalThreadNum];
+        validPathsArray = new ArrayList<ArrayList<short[]>>(optimalThreadNum);
+
         initMap();
         pathNum = 0;
     }
@@ -98,10 +122,11 @@ public class ConcurrentAnchorGraphTraversal extends GraphTraversal {
         System.out.println("Number of start points: " + graph.getStartPointNum());
         System.out.println("Number of anchor points: " + anchorNodes.length);
         long startTime = System.nanoTime();
-        // TODO: traversal
-
-        // TODO: concatenate
-
+        short initialThreadNum = (short) Runtime.getRuntime().availableProcessors();
+        // the traversal
+        traversal(initialThreadNum);
+        // the concatenation
+        concatenate(initialThreadNum);
         long endTime = System.nanoTime();
         timeElapsed = endTime - startTime;
         System.out.println(new Time(System.currentTimeMillis()).toString() + " - finished sub concatenate!");
@@ -121,17 +146,60 @@ public class ConcurrentAnchorGraphTraversal extends GraphTraversal {
     }
 
     /**
-     * Use DFS traversal by default
-     * @param start the start node
+     * The concurrent traversal function
+     * @param initialThreadNum the number of threads
      */
-    @Override
-    public void traversal(short start) {
-        //TODO: concurrent traversal
+    public void traversal(short initialThreadNum) {
+        if(traversalType.equals(TraversalType.DFS)) {
+            DFSTraversal(initialThreadNum);
+        } else if(traversalType.equals(TraversalType.BFS)) {
+            BFSTraversal(initialThreadNum);
+        } else {
+            DFSTraversal(initialThreadNum);
+        }
+    }
+
+    void BFSTraversal(short initialThreadNum) {
+        ExecutorService executor = Executors.newFixedThreadPool(initialThreadNum);
+        for(int start : anchorNodes) {
+            Runnable worker = new ConcurrentBFSTraversalTask((short) start, anchorPathsForMidNodes,
+                    anchorPathsForStartNodes, graph, isAnchor, validPaths, pathNumArray, validPathsArray,
+                    anchorPathsForStartNodesWLock, anchorPathsForStartNodesRLock, anchorPathsForMidNodesWLock);
+            executor.execute(worker);
+        }
+        executor.shutdown();
+    }
+
+    void DFSTraversal(short initialThreadNum) {
+        ExecutorService executor = Executors.newFixedThreadPool(initialThreadNum);
+        for(int start : anchorNodes) {
+            Runnable worker = new ConcurrentDFSTraversalTask((short) start, anchorPathsForMidNodes,
+                    anchorPathsForStartNodes, graph, isAnchor, validPaths, pathNumArray, validPathsArray,
+                    anchorPathsForStartNodesWLock, anchorPathsForStartNodesRLock, anchorPathsForMidNodesWLock);
+            executor.execute(worker);
+        }
+        executor.shutdown();
     }
 
     /***
-     * The concatenation section
-     * @param start The start node
+     * The concurrent concatenation section
+     * @param initialThreadNum the number of threads
      */
-    void concatenate(short start) {}
+    void concatenate(short initialThreadNum) {
+        if(traversalType.equals(TraversalType.DFS)) {
+            DFSConcatenate(initialThreadNum);
+        } else if(traversalType.equals(TraversalType.BFS)) {
+            BFSConcatenate(initialThreadNum);
+        } else {
+            DFSConcatenate(initialThreadNum);
+        }
+    }
+
+    void BFSConcatenate(short initialThreadNum) {
+
+    }
+
+    void DFSConcatenate(short initialThreadNum) {
+
+    }
 }

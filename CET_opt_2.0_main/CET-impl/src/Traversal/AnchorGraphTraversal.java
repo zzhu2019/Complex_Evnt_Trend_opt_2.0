@@ -20,7 +20,6 @@ public class AnchorGraphTraversal extends GraphTraversal {
     // for start nodes which are also anchor nodes, they have a fine-grained DS to store sub-paths
     HashMap<Short, HashMap<Short, CustomObjStack<short[]>>> anchorPathsForStartNodes;
     public ConcatenateType concatenateType;
-    private static final int STACK_NUM = 10;
 
     /***
      * The constructor
