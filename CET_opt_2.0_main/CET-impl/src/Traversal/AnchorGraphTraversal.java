@@ -265,7 +265,6 @@ public class AnchorGraphTraversal extends GraphTraversal {
             CustomObjStack<short[]> restPaths = new CustomObjStack<>();
 
             for(Object obj : map.get(endNode).getAllElements()) {
-                // TODO
                 short[] startPath = (short[]) obj;
 
                 if(isFirstConcatenate) {

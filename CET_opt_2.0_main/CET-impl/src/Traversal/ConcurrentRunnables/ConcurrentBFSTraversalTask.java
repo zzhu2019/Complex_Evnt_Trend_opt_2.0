@@ -61,7 +61,7 @@ public class ConcurrentBFSTraversalTask implements Runnable {
             ShortArray currentPath = queue.poll();
             short pathHead = (short) currentPath.getFirst();
             short pathRear = (short) currentPath.getLast();
-            if(isAnchor[pathRear] || graph.endContains(pathRear)) {
+            if((isAnchor[pathRear] && queue.size() > 1) || graph.endContains(pathRear)) {
                 if(graph.startContains(pathHead)) {
                     // for start nodes
                     anchorPathsForStartNodesRLock.lock();

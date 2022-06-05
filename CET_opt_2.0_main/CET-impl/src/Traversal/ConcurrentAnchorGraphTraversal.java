@@ -32,7 +32,7 @@ public class ConcurrentAnchorGraphTraversal extends GraphTraversal {
     Lock anchorPathsForStartNodesRLock = anchorPathsForStartNodesLock.readLock();
     Lock anchorPathsForMidNodesWLock = anchorPathsForMidNodesLock.writeLock();
 
-    /***
+    /**
      * The constructor
      * @param graph The CSR format graph
      * @param saveToMem If save the results to a file
@@ -53,7 +53,7 @@ public class ConcurrentAnchorGraphTraversal extends GraphTraversal {
         validPathsArray = new ArrayList<ArrayList<short[]>>(optimalThreadNum);
     }
 
-    /***
+    /**
      * Init maps used in this algorithm in case of multiple runs
      */
     private void initMap() {
@@ -80,7 +80,7 @@ public class ConcurrentAnchorGraphTraversal extends GraphTraversal {
         }
     }
 
-    /***
+    /**
      * Set the anchorNodes variable
      * @param anchorNodes An array of anchor nodes
      */
@@ -89,7 +89,7 @@ public class ConcurrentAnchorGraphTraversal extends GraphTraversal {
         initAnchorBool();
     }
 
-    /***
+    /**
      * Return an array of anchor nodes
      * @return An array of anchor nodes
      */
@@ -112,7 +112,7 @@ public class ConcurrentAnchorGraphTraversal extends GraphTraversal {
         pathNum = 0;
     }
 
-    /***
+    /**
      * Execute the algorithm
      */
     @Override
@@ -133,7 +133,7 @@ public class ConcurrentAnchorGraphTraversal extends GraphTraversal {
         System.out.println("path num: " + pathNum);
     }
 
-    /***
+    /**
      * Save the results into a file
      */
     @Override
@@ -159,6 +159,10 @@ public class ConcurrentAnchorGraphTraversal extends GraphTraversal {
         }
     }
 
+    /**
+     * The concurrent BFS traversal
+     * @param initialThreadNum the number of thread for the thread pool
+     */
     void BFSTraversal(short initialThreadNum) {
         ExecutorService executor = Executors.newFixedThreadPool(initialThreadNum);
         for(int start : anchorNodes) {
@@ -170,6 +174,10 @@ public class ConcurrentAnchorGraphTraversal extends GraphTraversal {
         executor.shutdown();
     }
 
+    /**
+     * The concurrent DFS traversal
+     * @param initialThreadNum the number of thread for the thread pool
+     */
     void DFSTraversal(short initialThreadNum) {
         ExecutorService executor = Executors.newFixedThreadPool(initialThreadNum);
         for(int start : anchorNodes) {
@@ -181,7 +189,7 @@ public class ConcurrentAnchorGraphTraversal extends GraphTraversal {
         executor.shutdown();
     }
 
-    /***
+    /**
      * The concurrent concatenation section
      * @param initialThreadNum the number of threads
      */
@@ -195,11 +203,21 @@ public class ConcurrentAnchorGraphTraversal extends GraphTraversal {
         }
     }
 
+    /**
+     * The concurrent BFS concatenate
+     * @param initialThreadNum the number of thread for the thread pool
+     */
     void BFSConcatenate(short initialThreadNum) {
-
+        ExecutorService executor = Executors.newFixedThreadPool(initialThreadNum);
+        executor.shutdown();
     }
 
+    /**
+     * The concurrent DFS concatenate
+     * @param initialThreadNum the number of thread for the thread pool
+     */
     void DFSConcatenate(short initialThreadNum) {
-
+        ExecutorService executor = Executors.newFixedThreadPool(initialThreadNum);
+        executor.shutdown();
     }
 }
