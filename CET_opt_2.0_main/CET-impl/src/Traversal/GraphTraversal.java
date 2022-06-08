@@ -125,7 +125,7 @@ public abstract class GraphTraversal {
      */
     public void printPaths() {
         for(short[] singlePath : validPaths) {
-            System.out.println(traversalType.toString() + ": " + Arrays.toString(singlePath));
+            System.out.println(Arrays.toString(singlePath));
         }
     }
 

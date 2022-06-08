@@ -10,33 +10,45 @@ import java.util.HashMap;
 import java.util.concurrent.locks.Lock;
 
 public class ConcurrentBFSTraversalTask implements Runnable {
-    private int threadId = (int) Thread.currentThread().getId();
-    private short startAnchor;
-    private boolean[] isAnchor;
+    private final int threadId;
+    private final short startAnchor;
+    private final boolean[] isAnchor;
 
-    private HashMap<Short, CustomObjStack<short[]>> anchorPathsForMidNodes;
-    private HashMap<Short, HashMap<Short, CustomObjStack<short[]>>> anchorPathsForStartNodes;
-    private CompressedGraph graph;
-    private ArrayList<short[]> validPaths;
-    private long[] pathNumArray;
-    private ArrayList<ArrayList<short[]>> validPathsArray;
-    private Lock anchorPathsForStartNodesWLock;
-    private Lock anchorPathsForStartNodesRLock;
-    private Lock anchorPathsForMidNodesWLock;
+    private final HashMap<Short, CustomObjStack<short[]>> anchorPathsForMidNodes;
+    private final HashMap<Short, HashMap<Short, CustomObjStack<short[]>>> anchorPathsForStartNodes;
+    private final CompressedGraph graph;
+    private final long[] pathNumArray;
+    private final ArrayList<ArrayList<short[]>> validPathsArray;
+    private final Lock anchorPathsForStartNodesWLock;
+    private final Lock anchorPathsForStartNodesRLock;
+    private final Lock anchorPathsForMidNodesWLock;
 
-
+    /**
+     * The constructor
+     * @param anchorIdx the start anchor idx
+     * @param anchorPathsForMidNodes a map storing sub-paths from a anchor node to another anchor/end node
+     * @param anchorPathsForStartNodes a map storing sub-paths from a start node to a anchor/end node
+     * @param graph a compressed graph
+     * @param isAnchor a boolean array storing a flag for each node determine if a node is a anchor node
+     * @param pathNumArray an array whose size is the number of available processors, each thread uses a separate
+     *                     counter in this array to count the valid path it meet
+     * @param validPathsArray an array whose size is the number of available processors, each thread uses a separate
+     *      *                     ArrayList in this array to store the valid path it meet
+     * @param anchorPathsForStartNodesWLock A ReentrantWriteLock for accessing the hashmap "anchorPathsForStartNodes"
+     * @param anchorPathsForStartNodesRLock A ReentrantReadLock for accessing the hashmap "anchorPathsForStartNodes"
+     * @param anchorPathsForMidNodesWLock A ReentrantWriteLock for accessing the hashmap "anchorPathsForMidNodes"
+     */
     public ConcurrentBFSTraversalTask(short anchorIdx, HashMap<Short, CustomObjStack<short[]>> anchorPathsForMidNodes,
                                       HashMap<Short, HashMap<Short, CustomObjStack<short[]>>> anchorPathsForStartNodes,
-                                      CompressedGraph graph, boolean[] isAnchor, ArrayList<short[]> validPaths,
-                                      long[] pathNumArray, ArrayList<ArrayList<short[]>> validPathsArray,
-                                      Lock anchorPathsForStartNodesWLock, Lock anchorPathsForStartNodesRLock,
-                                      Lock anchorPathsForMidNodesWLock) {
+                                      CompressedGraph graph, boolean[] isAnchor, long[] pathNumArray,
+                                      ArrayList<ArrayList<short[]>> validPathsArray, Lock anchorPathsForStartNodesWLock,
+                                      Lock anchorPathsForStartNodesRLock, Lock anchorPathsForMidNodesWLock, short threadNum) {
+        this.threadId = (int) Thread.currentThread().getId()%threadNum + 1;
         this.startAnchor = anchorIdx;
         this.anchorPathsForMidNodes = anchorPathsForMidNodes;
-        this. anchorPathsForStartNodes = anchorPathsForStartNodes;
+        this.anchorPathsForStartNodes = anchorPathsForStartNodes;
         this.graph = graph;
         this.isAnchor = isAnchor;
-        this.validPaths = validPaths;
         this.pathNumArray = pathNumArray;
         this.validPathsArray = validPathsArray;
         this.anchorPathsForStartNodesWLock = anchorPathsForStartNodesWLock;
@@ -44,8 +56,12 @@ public class ConcurrentBFSTraversalTask implements Runnable {
         this.anchorPathsForMidNodesWLock = anchorPathsForMidNodesWLock;
     }
 
+    /**
+     * The start point for a thread, BFS-based implementation
+     */
     public void run() {
-        ArrayQueue<ShortArray> queue = new ArrayQueue<>();
+        System.out.println("Thread " + threadId + " starts traversal!");
+
         ShortArray path = new ShortArray(10);
         path.add(startAnchor);
 
@@ -53,37 +69,39 @@ public class ConcurrentBFSTraversalTask implements Runnable {
         if(graph.endContains(startAnchor)) {
             pathNumArray[threadId]++;
             validPathsArray.get(threadId).add(path.getArray());
+            System.out.println("Thread " + threadId + " finish traversal.");
             return;
         }
 
+        ArrayQueue<ShortArray> queue = new ArrayQueue<>();
         queue.offer(path);
         while(!queue.isEmpty()) {
             ShortArray currentPath = queue.poll();
             short pathHead = (short) currentPath.getFirst();
             short pathRear = (short) currentPath.getLast();
-            if((isAnchor[pathRear] && queue.size() > 1) || graph.endContains(pathRear)) {
+            if((isAnchor[pathRear] && currentPath.size() > 1) || graph.endContains(pathRear)) {
                 if(graph.startContains(pathHead)) {
                     // for start nodes
                     anchorPathsForStartNodesRLock.lock();
                     boolean isMissingMap = !anchorPathsForStartNodes.get(pathHead).containsKey(pathRear);
                     anchorPathsForStartNodesRLock.unlock();
 
-                    anchorPathsForMidNodesWLock.lock();
+                    anchorPathsForStartNodesWLock.lock();
                     if(isMissingMap) {
                         anchorPathsForStartNodes.get(pathHead).put(pathRear, new CustomObjStack<>());
                     }
                     anchorPathsForStartNodes.get(pathHead).get(pathRear).push(currentPath.getArray());
-                    anchorPathsForMidNodesWLock.unlock();
+                    anchorPathsForStartNodesWLock.unlock();
                 } else {
                     // for other anchor nodes
                     anchorPathsForMidNodesWLock.lock();
                     anchorPathsForMidNodes.get(pathHead).push(currentPath.getArray());
                     anchorPathsForMidNodesWLock.unlock();
                 }
-                return;
+                continue;
             }
 
-            for(int i = graph.rowIndex[startAnchor]; i < graph.rowIndex[startAnchor + 1]; i++) {
+            for(int i = graph.rowIndex[pathRear]; i < graph.rowIndex[pathRear + 1]; i++) {
                 short neighbour = (short) graph.colIndex[i];
 
                 ShortArray newArray = new ShortArray(currentPath);
@@ -91,5 +109,7 @@ public class ConcurrentBFSTraversalTask implements Runnable {
                 queue.offer(newArray);
             }
         }
+
+        System.out.println("Thread " + threadId + " finish traversal.");
     }
 }

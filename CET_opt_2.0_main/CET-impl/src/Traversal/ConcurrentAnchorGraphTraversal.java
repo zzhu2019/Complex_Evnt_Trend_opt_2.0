@@ -8,8 +8,7 @@ import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -26,11 +25,12 @@ public class ConcurrentAnchorGraphTraversal extends GraphTraversal {
     private ArrayList<ArrayList<short[]>> validPathsArray;
     final short optimalThreadNum = (short) Runtime.getRuntime().availableProcessors();
     // default is using the non-fair mode
-    private ReadWriteLock anchorPathsForStartNodesLock = new ReentrantReadWriteLock();
-    private ReadWriteLock anchorPathsForMidNodesLock = new ReentrantReadWriteLock();
+    private final ReadWriteLock anchorPathsForStartNodesLock = new ReentrantReadWriteLock();
+    private final ReadWriteLock anchorPathsForMidNodesLock = new ReentrantReadWriteLock();
     Lock anchorPathsForStartNodesWLock = anchorPathsForStartNodesLock.writeLock();
     Lock anchorPathsForStartNodesRLock = anchorPathsForStartNodesLock.readLock();
     Lock anchorPathsForMidNodesWLock = anchorPathsForMidNodesLock.writeLock();
+    ThreadPoolExecutor executor;
 
     /**
      * The constructor
@@ -49,8 +49,9 @@ public class ConcurrentAnchorGraphTraversal extends GraphTraversal {
 //        anchorPathsForStartNodes = new HashMap<>();
 //        anchorPathsForMidNodes = new HashMap<>();
         isAnchor = new boolean[graph.getNumVertex()];
-//        pathNumArray = new long[optimalThreadNum];
-        validPathsArray = new ArrayList<ArrayList<short[]>>(optimalThreadNum);
+//        pathNumArray = new long[optimalThreadNum+1];
+//        validPathsArray = new ArrayList<ArrayList<short[]>>(optimalThreadNum+1);
+        executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(optimalThreadNum);
     }
 
     /**
@@ -65,7 +66,7 @@ public class ConcurrentAnchorGraphTraversal extends GraphTraversal {
             }
         }
 
-        for(int i = 0; i < validPathsArray.size(); ++i) {
+        for(int i = 0; i < optimalThreadNum+1; ++i) {
             validPathsArray.add(new ArrayList<short[]>());
         }
     }
@@ -105,8 +106,8 @@ public class ConcurrentAnchorGraphTraversal extends GraphTraversal {
         validPaths = new ArrayList<>();
         anchorPathsForMidNodes = new HashMap<>();
         anchorPathsForStartNodes = new HashMap<>();
-        pathNumArray = new long[optimalThreadNum];
-        validPathsArray = new ArrayList<ArrayList<short[]>>(optimalThreadNum);
+        pathNumArray = new long[optimalThreadNum+1];
+        validPathsArray = new ArrayList<ArrayList<short[]>>(optimalThreadNum+1);
 
         initMap();
         pathNum = 0;
@@ -117,19 +118,43 @@ public class ConcurrentAnchorGraphTraversal extends GraphTraversal {
      */
     @Override
     public void execute() {
+        // TODO: thread id is wrong
+        // TODO: result is wrong
         clearAll();
 
+        System.out.println("Number of thread: " + optimalThreadNum);
         System.out.println("Number of start points: " + graph.getStartPointNum());
         System.out.println("Number of anchor points: " + anchorNodes.length);
         long startTime = System.nanoTime();
-        short initialThreadNum = (short) Runtime.getRuntime().availableProcessors();
+
         // the traversal
-        traversal(initialThreadNum);
+        traversal(optimalThreadNum);
+        executor.shutdown();
+
+        while(!executor.isTerminated());
+        executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(optimalThreadNum);
+
         // the concatenation
-        concatenate(initialThreadNum);
+        concatenate(optimalThreadNum);
+
+        executor.shutdown();
+        while(!executor.isTerminated());
+
         long endTime = System.nanoTime();
         timeElapsed = endTime - startTime;
-        System.out.println(new Time(System.currentTimeMillis()).toString() + " - finished sub concatenate!");
+        System.out.println(new Time(System.currentTimeMillis()).toString() + " - finished concatenate!");
+
+        // sum up path count
+        for(int i = 0 ; i < optimalThreadNum+1; ++i) {
+            pathNum += pathNumArray[i];
+            System.out.println("Thread " + i + " with " + pathNumArray[i]);
+        }
+
+        // sum up paths
+        for(int i = 0 ; i < optimalThreadNum+1; ++i) {
+            validPaths.addAll(validPathsArray.get(i));
+        }
+
         System.out.println("path num: " + pathNum);
     }
 
@@ -147,77 +172,73 @@ public class ConcurrentAnchorGraphTraversal extends GraphTraversal {
 
     /**
      * The concurrent traversal function
-     * @param initialThreadNum the number of threads
+     * @param threadNum the number of threads
      */
-    public void traversal(short initialThreadNum) {
+    public void traversal(short threadNum) {
         if(traversalType.equals(TraversalType.DFS)) {
-            DFSTraversal(initialThreadNum);
-        } else if(traversalType.equals(TraversalType.BFS)) {
-            BFSTraversal(initialThreadNum);
+            DFSTraversal(threadNum);
         } else {
-            DFSTraversal(initialThreadNum);
+            BFSTraversal(threadNum);
         }
     }
 
     /**
      * The concurrent BFS traversal
-     * @param initialThreadNum the number of thread for the thread pool
      */
-    void BFSTraversal(short initialThreadNum) {
-        ExecutorService executor = Executors.newFixedThreadPool(initialThreadNum);
+    void BFSTraversal(short threadNum) {
         for(int start : anchorNodes) {
             Runnable worker = new ConcurrentBFSTraversalTask((short) start, anchorPathsForMidNodes,
-                    anchorPathsForStartNodes, graph, isAnchor, validPaths, pathNumArray, validPathsArray,
-                    anchorPathsForStartNodesWLock, anchorPathsForStartNodesRLock, anchorPathsForMidNodesWLock);
+                    anchorPathsForStartNodes, graph, isAnchor, pathNumArray, validPathsArray,
+                    anchorPathsForStartNodesWLock, anchorPathsForStartNodesRLock, anchorPathsForMidNodesWLock,
+                    threadNum);
             executor.execute(worker);
         }
-        executor.shutdown();
     }
 
     /**
      * The concurrent DFS traversal
-     * @param initialThreadNum the number of thread for the thread pool
      */
-    void DFSTraversal(short initialThreadNum) {
-        ExecutorService executor = Executors.newFixedThreadPool(initialThreadNum);
+    void DFSTraversal(short threadNum) {
         for(int start : anchorNodes) {
             Runnable worker = new ConcurrentDFSTraversalTask((short) start, anchorPathsForMidNodes,
-                    anchorPathsForStartNodes, graph, isAnchor, validPaths, pathNumArray, validPathsArray,
-                    anchorPathsForStartNodesWLock, anchorPathsForStartNodesRLock, anchorPathsForMidNodesWLock);
+                    anchorPathsForStartNodes, graph, isAnchor, pathNumArray, validPathsArray,
+                    anchorPathsForStartNodesWLock, anchorPathsForStartNodesRLock, anchorPathsForMidNodesWLock,
+                    threadNum);
             executor.execute(worker);
         }
-        executor.shutdown();
     }
 
     /**
      * The concurrent concatenation section
-     * @param initialThreadNum the number of threads
      */
-    void concatenate(short initialThreadNum) {
+    void concatenate(short threadNum) {
         if(traversalType.equals(TraversalType.DFS)) {
-            DFSConcatenate(initialThreadNum);
-        } else if(traversalType.equals(TraversalType.BFS)) {
-            BFSConcatenate(initialThreadNum);
+            DFSConcatenate(threadNum);
         } else {
-            DFSConcatenate(initialThreadNum);
+            BFSConcatenate(threadNum);
         }
     }
 
     /**
      * The concurrent BFS concatenate
-     * @param initialThreadNum the number of thread for the thread pool
      */
-    void BFSConcatenate(short initialThreadNum) {
-        ExecutorService executor = Executors.newFixedThreadPool(initialThreadNum);
-        executor.shutdown();
+    void BFSConcatenate(short threadNum) {
+        // TODO: run sequential first and then each thread takes a start path
+        for(int start : graph.getStartPoints()) {
+            Runnable worker = new ConcurrentBFSConcatenateTask((short) start, anchorPathsForMidNodes,
+                    anchorPathsForStartNodes, graph, anchorNodes, pathNumArray, validPathsArray, threadNum);
+            executor.execute(worker);
+        }
     }
 
     /**
      * The concurrent DFS concatenate
-     * @param initialThreadNum the number of thread for the thread pool
      */
-    void DFSConcatenate(short initialThreadNum) {
-        ExecutorService executor = Executors.newFixedThreadPool(initialThreadNum);
-        executor.shutdown();
+    void DFSConcatenate(short threadNum) {
+        for(int start : graph.getStartPoints()) {
+            Runnable worker = new ConcurrentDFSConcatenateTask((short) start, anchorPathsForMidNodes,
+                    anchorPathsForStartNodes, graph, anchorNodes, pathNumArray, validPathsArray, threadNum);
+            executor.execute(worker);
+        }
     }
 }

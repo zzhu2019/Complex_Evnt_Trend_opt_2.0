@@ -46,7 +46,7 @@ public class AlgoExecutor {
      * 5. Concurrent Anchor (1.DFS 2.DFS)
      * 6. Concurrent Anchor (1.BFS 2.DFS)
      * 7. Concurrent Anchor (1.DFS 2.BFS)
-     * 8. Concurrent Anchor (1.DFS 2.BFS)
+     * 8. Concurrent Anchor (1.BFS 2.BFS)
      *
      * @param selection selection of algo
      * @param graph graph
@@ -57,14 +57,22 @@ public class AlgoExecutor {
             case 2 -> this.algo = new DFSGraphTraversal(graph, savePathInMem);
             case 3 -> addHybrid(graph, ConcatenateType.DFS);
             case 4 -> addHybrid(graph, ConcatenateType.BFS);
+            case 5 -> composeConcurrent(graph, TraversalType.DFS, ConcatenateType.DFS);
+            case 6 -> composeConcurrent(graph, TraversalType.BFS, ConcatenateType.DFS);
+            case 7 -> composeConcurrent(graph, TraversalType.DFS, ConcatenateType.BFS);
+            case 8 -> composeConcurrent(graph, TraversalType.BFS, ConcatenateType.BFS);
             default -> System.out.println("Algo unknown");
         }
     }
 
 
     private void addHybrid(CompressedGraph graph, ConcatenateType concatenateType) {
-        algo = new AnchorGraphTraversal(graph, savePathInMem, null,concatenateType );
+        algo = new AnchorGraphTraversal(graph, savePathInMem, null, concatenateType);
+        selectAnchorType(graph);
+    }
 
+    private void composeConcurrent(CompressedGraph graph, TraversalType ttype, ConcatenateType ctype) {
+        algo = new ConcurrentAnchorGraphTraversal(graph, savePathInMem, null, ttype, ctype);
         selectAnchorType(graph);
     }
 
@@ -96,15 +104,17 @@ public class AlgoExecutor {
             numAnchor = Integer.parseInt(sc.nextLine());
             if(numAnchor + graph.getStartPointNum() <= graph.getNumVertex()) {
                 break;
-            }
-            else {
+            } else {
                 System.out.println("""
                         WARNING: The number of anchor nodes is larger than the number of nodes in graph, try again.""");
             }
         }
 
-        ((AnchorGraphTraversal) algo).setAnchorNodes(
-                findAnchor(algo.getGraph(), selection));
+        if(algo.getClass().getSimpleName().equals("AnchorGraphTraversal")) {
+            ((AnchorGraphTraversal) algo).setAnchorNodes(findAnchor(algo.getGraph(), selection));
+        } else {
+            ((ConcurrentAnchorGraphTraversal) algo).setAnchorNodes(findAnchor(algo.getGraph(), selection));
+        }
     }
 
 
@@ -131,13 +141,18 @@ public class AlgoExecutor {
     }
 
     public void execute() {
-        System.out.println("Algorithm to execute: " + this.algo.getClass().getName());
+        System.out.println("Algorithm to execute: " + this.algo.getClass().getSimpleName());
 
         String concurrentPrefix = (this.algo.getClass().getName().contains("Concurrent") ? "Concurrent-" : "");
 
         String concatenatePrefix = "";
-        if(selection != null) {
+        if(selection != null && algo.getClass().getSimpleName().equals("AnchorGraphTraversal")) {
             concatenatePrefix = "-" + ((AnchorGraphTraversal)this.algo).concatenateType;
+            concatenatePrefix = concatenatePrefix.replace("ConcatenateType.", "");
+        } else if(algo.getClass().getSimpleName().equals("ConcurrentAnchorGraphTraversal")) {
+            concatenatePrefix = "-" + ((ConcurrentAnchorGraphTraversal)this.algo).traversalType +
+                    "-" + ((ConcurrentAnchorGraphTraversal)this.algo).concatenateType;
+            concatenatePrefix = concatenatePrefix.replace("traversalType.", "");
             concatenatePrefix = concatenatePrefix.replace("ConcatenateType.", "");
         }
 
@@ -229,14 +244,12 @@ public class AlgoExecutor {
 
             if(numAnchor != 0) {
                 fw.write("\n" + numAnchor + "," + average / numRun / Math.pow(10, 9));
-            }
-            else {
+            } else {
                 fw.write("Average time(s) running " + numRun + " times: " + average / numRun / Math.pow(10, 9));
             }
 
             fw.close();
-        }
-        catch(IOException e) {
+        } catch(IOException e) {
             e.printStackTrace();
         }
     }

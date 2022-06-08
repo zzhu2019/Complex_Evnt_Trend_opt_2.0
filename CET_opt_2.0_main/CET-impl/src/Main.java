@@ -121,8 +121,8 @@ public class Main {
                     return;
                 }
             } else {
-               System.out.println("Please run the program again and input a y/n.");
-               return;
+                System.out.println("Please run the program again and input a y/n.");
+                return;
             }
         }
 
@@ -180,12 +180,16 @@ public class Main {
             int algoIndex = setIntParameter();
 
             if(algoIndex == 99) return;
-            else if(algoIndex <= 7) {
-                System.out.println("""
-                    -------------------------------------------------------------
-                    - Do you want to save result to run time memory? (y/n)      -
-                    -------------------------------------------------------------""");
-                executor.setSavePathInMem(setBooleanParameter());
+            else if(algoIndex <= 8) {
+                if(algoIndex <= 4) {
+                    System.out.println("""
+                            -------------------------------------------------------------
+                            - Do you want to save result to run time memory? (y/n)      -
+                            -------------------------------------------------------------""");
+                    executor.setSavePathInMem(setBooleanParameter());
+                } else {
+                    executor.setSavePathInMem(true);
+                }
 
                 executor.setAlgo(algoIndex, graph);
                 break;
