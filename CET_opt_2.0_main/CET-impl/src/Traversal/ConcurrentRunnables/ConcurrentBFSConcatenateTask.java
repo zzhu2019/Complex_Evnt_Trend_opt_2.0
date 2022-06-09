@@ -8,8 +8,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ConcurrentBFSConcatenateTask implements Runnable {
-    private int threadId;
-    private final short startNode;
+    private final int threadNum;
+    private final short startPathStartNode;
+    private final short startPathEndNode;
     private final short[] anchorNodes;
 
     private final HashMap<Short, CustomObjStack<short[]>> anchorPathsForMidNodes;
@@ -20,7 +21,8 @@ public class ConcurrentBFSConcatenateTask implements Runnable {
 
     /**
      * The constructor
-     * @param startAnchor the start anchor idx
+     * @param startPathStartNode the start node of the task target path
+     * @param startPathEndNode the end node of the task target path
      * @param anchorPathsForMidNodes a map storing sub-paths from a anchor node to another anchor/end node
      * @param anchorPathsForStartNodes a map storing sub-paths from a start node to a anchor/end node
      * @param graph a compressed graph
@@ -30,12 +32,13 @@ public class ConcurrentBFSConcatenateTask implements Runnable {
      * @param validPathsArray an array whose size is the number of available processors, each thread uses a separate
      *                        ArrayList in this array to store the valid path it meet
      */
-    public ConcurrentBFSConcatenateTask(short startAnchor, HashMap<Short, CustomObjStack<short[]>> anchorPathsForMidNodes,
+    public ConcurrentBFSConcatenateTask(short startPathStartNode, short startPathEndNode, HashMap<Short, CustomObjStack<short[]>> anchorPathsForMidNodes,
                                         HashMap<Short, HashMap<Short, CustomObjStack<short[]>>> anchorPathsForStartNodes,
                                         CompressedGraph graph, short[] anchorNodes, long[] pathNumArray,
                                         ArrayList<ArrayList<short[]>> validPathsArray, short threadNum) {
-        this.threadId = (int) Thread.currentThread().getId()%threadNum + 1;
-        this.startNode = startAnchor;
+        this.threadNum = threadNum;
+        this.startPathStartNode = startPathStartNode;
+        this.startPathEndNode = startPathEndNode;
         this.anchorPathsForMidNodes = anchorPathsForMidNodes;
         this.anchorPathsForStartNodes = anchorPathsForStartNodes;
         this.anchorNodes = anchorNodes;
@@ -48,60 +51,60 @@ public class ConcurrentBFSConcatenateTask implements Runnable {
      * The start point for a thread, BFS-based implementation
      */
     public void run() {
+        int threadId = (int) Thread.currentThread().getId()%threadNum + 1;
+
         System.out.println("Thread " + threadId + " starts concatenation!");
 
         // each thread get a start node
-        HashMap<Short, CustomObjStack<short[]>> map = anchorPathsForStartNodes.get(startNode);
+        HashMap<Short, CustomObjStack<short[]>> map = anchorPathsForStartNodes.get(startPathStartNode);
 
-        for(Short endNote : map.keySet()) {
-            boolean isFirstConcatenate = true;
-            CustomObjStack<short[]> restPaths = new CustomObjStack<>();
+        boolean isFirstConcatenate = true;
+        CustomObjStack<short[]> restPaths = new CustomObjStack<>();
 
-            for(Object obj : map.get(endNote).getAllElements()) {
-                short[] startPath = (short[]) obj;
+        for(Object obj : map.get(startPathEndNode).getAllElements()) {
+            short[] startPath = (short[]) obj;
 
-                if(isFirstConcatenate) {
-                    ArrayQueue<short[]> queue = new ArrayQueue<>(anchorNodes.length);
-                    queue.offer(startPath);
+            if(isFirstConcatenate) {
+                ArrayQueue<short[]> queue = new ArrayQueue<>(anchorNodes.length);
+                queue.offer(startPath);
 
-                    while(!queue.isEmpty()) {
-                        // Get the first set of sub-paths from the queue
-                        short[] currentPath = queue.poll();
-                        short lastNode = currentPath[currentPath.length - 1];
-                        short firstNode = currentPath[0];
+                while(!queue.isEmpty()) {
+                    // Get the first set of sub-paths from the queue
+                    short[] currentPath = queue.poll();
+                    short lastNode = currentPath[currentPath.length - 1];
+                    short firstNode = currentPath[0];
 
-                        if(graph.endContains(lastNode)) {
-                            restPaths.push(currentPath);
-                            continue;
-                        }
-
-                        // Get all these sub-paths under the end node of the current sub-path
-                        for(Object object : anchorPathsForMidNodes.get(lastNode).getAllElements()) {
-                            if(graph.startContains(firstNode)) {
-                                // Ignore the first sub-path
-                                queue.offer((short[]) object);
-                            } else {
-                                // Create the new sub-path by merging
-                                short[] nextPath = (short[]) object;
-                                short[] newPath = new short[currentPath.length - 1 + nextPath.length];
-                                System.arraycopy(currentPath, 0, newPath, 0, currentPath.length - 1);
-                                System.arraycopy(nextPath, 0, newPath, currentPath.length - 1, nextPath.length);
-
-                                queue.offer(newPath);
-                            }
-                        }
+                    if(graph.endContains(lastNode)) {
+                        restPaths.push(currentPath);
+                        continue;
                     }
 
-                    isFirstConcatenate = false;
+                    // Get all these sub-paths under the end node of the current sub-path
+                    for(Object object : anchorPathsForMidNodes.get(lastNode).getAllElements()) {
+                        if(graph.startContains(firstNode)) {
+                            // Ignore the first sub-path
+                            queue.offer((short[]) object);
+                        } else {
+                            // Create the new sub-path by merging
+                            short[] nextPath = (short[]) object;
+                            short[] newPath = new short[currentPath.length - 1 + nextPath.length];
+                            System.arraycopy(currentPath, 0, newPath, 0, currentPath.length - 1);
+                            System.arraycopy(nextPath, 0, newPath, currentPath.length - 1, nextPath.length);
+
+                            queue.offer(newPath);
+                        }
+                    }
                 }
 
-                for(Object object : restPaths.getAllElements()) {
-                    short[] restPath = (short[]) object;
-                    // merge startPath and restPath
-                    // push this result to validPaths
-                    validPathsArray.get(threadId).add(mergePaths(startPath, restPath));
-                    pathNumArray[threadId]++;
-                }
+                isFirstConcatenate = false;
+            }
+
+            for(Object object : restPaths.getAllElements()) {
+                short[] restPath = (short[]) object;
+                // merge startPath and restPath
+                // push this result to validPaths
+                validPathsArray.get(threadId).add(mergePaths(startPath, restPath));
+                pathNumArray[threadId]++;
             }
         }
 

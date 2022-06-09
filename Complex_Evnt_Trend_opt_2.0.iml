@@ -4,6 +4,8 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/CET_opt_2.0_main/CET-impl" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/CET_opt_2.0_main/DAGs" />
+      <excludeFolder url="file://$MODULE_DIR$/DAGs" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

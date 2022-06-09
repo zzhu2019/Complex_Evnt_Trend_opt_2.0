@@ -30,12 +30,11 @@ public class Main {
         CompressedGraph graph;
         Scanner sc = new Scanner(System.in);
 
-        // Read graph type: either random or a file path
         if(args.length == 1) {
+            // Read graph type: either random or a file path
             graph = graphBuilder.generateGraphFile(args[0]);
-        }
-        // command line read a graph or create a new graph
-        else {
+        } else {
+            // command line read a graph or create a new graph
             System.out.println("""
                     -------------------------------------------------------------
                     - Do you want to enter an existing config file path? (y/n)  -

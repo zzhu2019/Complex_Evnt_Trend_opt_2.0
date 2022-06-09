@@ -8,8 +8,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ConcurrentDFSConcatenateTask implements Runnable {
-    private final int threadId;
-    private final short startNode;
+    private final int threadNum;
+    private final short startPathStartNode;
+    private final short startPathEndNode;
     private final short[] anchorNodes;
 
     private final HashMap<Short, CustomObjStack<short[]>> anchorPathsForMidNodes;
@@ -20,7 +21,8 @@ public class ConcurrentDFSConcatenateTask implements Runnable {
 
     /**
      * The constructor
-     * @param startAnchor the start anchor idx
+     * @param startPathStartNode the start node of the task target path
+     * @param startPathEndNode the end node of the task target path
      * @param anchorPathsForMidNodes a map storing sub-paths from a anchor node to another anchor/end node
      * @param anchorPathsForStartNodes a map storing sub-paths from a start node to a anchor/end node
      * @param graph a compressed graph
@@ -30,12 +32,13 @@ public class ConcurrentDFSConcatenateTask implements Runnable {
      * @param validPathsArray an array whose size is the number of available processors, each thread uses a separate
      *                        ArrayList in this array to store the valid path it meet
      */
-    public ConcurrentDFSConcatenateTask(short startAnchor, HashMap<Short, CustomObjStack<short[]>> anchorPathsForMidNodes,
+    public ConcurrentDFSConcatenateTask(short startPathStartNode, short startPathEndNode, HashMap<Short, CustomObjStack<short[]>> anchorPathsForMidNodes,
                                         HashMap<Short, HashMap<Short, CustomObjStack<short[]>>> anchorPathsForStartNodes,
                                         CompressedGraph graph, short[] anchorNodes, long[] pathNumArray,
                                         ArrayList<ArrayList<short[]>> validPathsArray, short threadNum) {
-        this.threadId = (int) Thread.currentThread().getId()%threadNum + 1;
-        this.startNode = startAnchor;
+        this.threadNum = threadNum;
+        this.startPathStartNode = startPathStartNode;
+        this.startPathEndNode = startPathEndNode;
         this.anchorPathsForMidNodes = anchorPathsForMidNodes;
         this.anchorPathsForStartNodes = anchorPathsForStartNodes;
         this.anchorNodes = anchorNodes;
@@ -48,32 +51,32 @@ public class ConcurrentDFSConcatenateTask implements Runnable {
      * The start point for a thread, DFS-based implementation
      */
     public void run() {
+        int threadId = (int) Thread.currentThread().getId()%threadNum + 1;
+
         System.out.println("Thread " + threadId + " starts concatenation!");
 
         // For each sub-path under the start node
-        HashMap<Short, CustomObjStack<short[]>> map = anchorPathsForStartNodes.get(startNode);
+        HashMap<Short, CustomObjStack<short[]>> map = anchorPathsForStartNodes.get(startPathStartNode);
 
-        for(Short endNode : map.keySet()) {
-            boolean isFirstConcatenate = true;
-            CustomObjStack<short[]> restPaths = new CustomObjStack<>();
-            for(Object obj : map.get(endNode).getAllElements()) {
-                short[] startPath = (short[]) obj;
+        boolean isFirstConcatenate = true;
+        CustomObjStack<short[]> restPaths = new CustomObjStack<>();
+        for(Object obj : map.get(startPathEndNode).getAllElements()) {
+            short[] startPath = (short[]) obj;
 
-                if(isFirstConcatenate) {
-                    FixedSizeStack<short[]> stack = new FixedSizeStack<>(anchorNodes.length);
-                    stack.push(startPath);
-                    recursiveUtil(startPath, stack, restPaths);
+            if(isFirstConcatenate) {
+                FixedSizeStack<short[]> stack = new FixedSizeStack<>(anchorNodes.length);
+                stack.push(startPath);
+                recursiveUtil(startPath, stack, restPaths);
 
-                    isFirstConcatenate = false;
-                }
+                isFirstConcatenate = false;
+            }
 
-                for(Object object : restPaths.getAllElements()) {
-                    short[] restPath = (short[]) object;
-                    // merge startPath and restPath
-                    // push this result to validPaths
-                    validPathsArray.get(threadId).add(mergePaths(startPath, restPath));
-                    pathNumArray[threadId]++;
-                }
+            for(Object object : restPaths.getAllElements()) {
+                short[] restPath = (short[]) object;
+                // merge startPath and restPath
+                // push this result to validPaths
+                validPathsArray.get(threadId).add(mergePaths(startPath, restPath));
+                pathNumArray[threadId]++;
             }
         }
 

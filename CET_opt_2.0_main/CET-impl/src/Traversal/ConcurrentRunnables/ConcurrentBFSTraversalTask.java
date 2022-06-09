@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.concurrent.locks.Lock;
 
 public class ConcurrentBFSTraversalTask implements Runnable {
-    private final int threadId;
+    private final int threadNum;
     private final short startAnchor;
     private final boolean[] isAnchor;
 
@@ -43,7 +43,7 @@ public class ConcurrentBFSTraversalTask implements Runnable {
                                       CompressedGraph graph, boolean[] isAnchor, long[] pathNumArray,
                                       ArrayList<ArrayList<short[]>> validPathsArray, Lock anchorPathsForStartNodesWLock,
                                       Lock anchorPathsForStartNodesRLock, Lock anchorPathsForMidNodesWLock, short threadNum) {
-        this.threadId = (int) Thread.currentThread().getId()%threadNum + 1;
+        this.threadNum = threadNum;
         this.startAnchor = anchorIdx;
         this.anchorPathsForMidNodes = anchorPathsForMidNodes;
         this.anchorPathsForStartNodes = anchorPathsForStartNodes;
@@ -60,6 +60,7 @@ public class ConcurrentBFSTraversalTask implements Runnable {
      * The start point for a thread, BFS-based implementation
      */
     public void run() {
+        int threadId = (int) Thread.currentThread().getId()%threadNum + 1;
         System.out.println("Thread " + threadId + " starts traversal!");
 
         ShortArray path = new ShortArray(10);
@@ -79,7 +80,12 @@ public class ConcurrentBFSTraversalTask implements Runnable {
             ShortArray currentPath = queue.poll();
             short pathHead = (short) currentPath.getFirst();
             short pathRear = (short) currentPath.getLast();
-            if((isAnchor[pathRear] && currentPath.size() > 1) || graph.endContains(pathRear)) {
+
+            if(graph.startContains(pathHead) && graph.endContains(pathRear)) {
+                validPathsArray.get(threadId).add(currentPath.getArray());
+                pathNumArray[threadId]++;
+                continue;
+            } else if((isAnchor[pathRear] && currentPath.size() > 1) || graph.endContains(pathRear)) {
                 if(graph.startContains(pathHead)) {
                     // for start nodes
                     anchorPathsForStartNodesRLock.lock();

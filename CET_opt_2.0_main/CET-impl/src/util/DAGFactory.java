@@ -255,8 +255,7 @@ public class DAGFactory {
             fw.write(content.substring(0, content.length() / 2));
             fw.write(content.substring(content.length() / 2));
             fw.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

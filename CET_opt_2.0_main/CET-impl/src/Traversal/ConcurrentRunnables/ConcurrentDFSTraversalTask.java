@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.locks.Lock;
 public class ConcurrentDFSTraversalTask implements Runnable {
-    private final int threadId;
+    private final int threadNum;
     private final short startAnchor;
     private final boolean[] isAnchor;
 
@@ -41,7 +41,7 @@ public class ConcurrentDFSTraversalTask implements Runnable {
                                       CompressedGraph graph, boolean[] isAnchor, long[] pathNumArray,
                                       ArrayList<ArrayList<short[]>> validPathsArray, Lock anchorPathsForStartNodesWLock,
                                       Lock anchorPathsForStartNodesRLock, Lock anchorPathsForMidNodesWLock, short threadNum) {
-        this.threadId = (int) Thread.currentThread().getId()%threadNum + 1;
+        this.threadNum = threadNum;
         this.startAnchor = anchorIdx;
         this.anchorPathsForMidNodes = anchorPathsForMidNodes;
         this.anchorPathsForStartNodes = anchorPathsForStartNodes;
@@ -58,12 +58,13 @@ public class ConcurrentDFSTraversalTask implements Runnable {
      * The start point for a thread, DFS-based implementation
      */
     public void run() {
+        int threadId = (int) Thread.currentThread().getId()%threadNum + 1;
         System.out.println("Thread " + threadId + " starts traversal!");
 
         CustomShortStack stack = new CustomShortStack();
         stack.push(startAnchor);
         if(graph.getNumDegree(startAnchor) != 0) {
-            recursiveUtil(stack);
+            recursiveUtil(stack, threadId);
         } else {
             pathNumArray[threadId]++;
             validPathsArray.get(threadId).add(stack.getAllElements());
@@ -76,7 +77,7 @@ public class ConcurrentDFSTraversalTask implements Runnable {
      * The recursive util function to implementing DFS
      * @param stack the current path
      */
-    private void recursiveUtil(CustomShortStack stack) {
+    private void recursiveUtil(CustomShortStack stack, int threadId) {
         short bottomElement = stack.getFirstElement();
         short topElement = stack.peek();
 
@@ -115,7 +116,7 @@ public class ConcurrentDFSTraversalTask implements Runnable {
         for(int i = graph.rowIndex[topElement]; i < graph.rowIndex[topElement + 1]; i++) {
             short edge = (short) graph.colIndex[i];
             stack.push(edge);
-            recursiveUtil(stack);
+            recursiveUtil(stack, threadId);
             stack.pop();
         }
     }
