@@ -67,7 +67,7 @@ public class ConcurrentBFSTraversalTask implements Runnable {
         path.add(startAnchor);
 
         // The startAnchor is a valid path itself
-        if(graph.endContains(startAnchor)) {
+        if(graph.startContains(startAnchor) && graph.endContains(startAnchor)) {
             pathNumArray[threadId]++;
             validPathsArray.get(threadId).add(path.getArray());
             System.out.println("Thread " + threadId + " finish traversal.");

@@ -152,11 +152,11 @@ public class DAGFactory {
 
     private void randomPathForStartNode(int start) {
         int retryLimit = 10;
-        int currPos = start;
+        int curPos = start;
         while(true) {
             // make the step ranges from 1 to stepRange (integer)
             int step = (int) Math.floor((Math.random()*stepRange)) + 1;
-            int nextPos = currPos==start ? numOfStartPoint-1+step : currPos+step;
+            int nextPos = curPos==start ? numOfStartPoint-1+step : curPos+step;
             if(nextPos < numOfNode - numOfEndPoint) {
                 // fall on middle nodes
                 if(outDegree[nextPos] >= maxOutDegree || inDegree[nextPos] >= maxInDegree) {
@@ -169,22 +169,22 @@ public class DAGFactory {
 
                 // reset the limit count
                 retryLimit = 10;
-                matrix[currPos][nextPos] = true;
+                matrix[curPos][nextPos] = true;
                 inDegree[nextPos]++;
-                outDegree[currPos]++;
-                currPos = nextPos;
+                outDegree[curPos]++;
+                curPos = nextPos;
             } else if(nextPos < numOfNode) {
                 // fall on end nodes
-                matrix[currPos][nextPos] = true;
+                matrix[curPos][nextPos] = true;
                 inDegree[nextPos]++;
-                outDegree[currPos]++;
+                outDegree[curPos]++;
                 break;
             } else {
                 // outside, randomly choose an end node
                 int endPos = numOfNode - (int) Math.floor(Math.random() * numOfEndPoint) - 1;
-                matrix[currPos][endPos] = true;
+                matrix[curPos][endPos] = true;
                 inDegree[endPos]++;
-                outDegree[currPos]++;
+                outDegree[curPos]++;
                 break;
             }
         }
