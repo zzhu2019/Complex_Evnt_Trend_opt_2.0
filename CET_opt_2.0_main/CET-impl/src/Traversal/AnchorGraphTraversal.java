@@ -101,10 +101,10 @@ public class AnchorGraphTraversal extends GraphTraversal {
         System.out.println("Number of anchor points: " + anchorNodes.length);
         long startTime = System.nanoTime();
         for(int start : anchorNodes) {
-            if(graph.getNumVertex() > 5000) {
-                System.out.println(new Time(System.currentTimeMillis()).toString() + " - start on: " + start +
-                        " with degree " + graph.getNumDegree(start));
-            }
+//            if(graph.getNumVertex() > 5000) {
+//                System.out.println(new Time(System.currentTimeMillis()).toString() + " - start on: " + start +
+//                        " with degree " + graph.getNumDegree(start));
+//            }
             traversal((short) start);
         }
 
