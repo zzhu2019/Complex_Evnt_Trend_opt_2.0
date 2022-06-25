@@ -180,15 +180,16 @@ public class Main {
 
             if(algoIndex == 99) return;
             else if(algoIndex <= 8) {
-                if(algoIndex <= 4) {
-                    System.out.println("""
-                            -------------------------------------------------------------
-                            - Do you want to save result to run time memory? (y/n)      -
-                            -------------------------------------------------------------""");
-                    executor.setSavePathInMem(setBooleanParameter());
-                } else {
-                    executor.setSavePathInMem(true);
-                }
+//                if(algoIndex <= 4) {
+//                    System.out.println("""
+//                            -------------------------------------------------------------
+//                            - Do you want to save result to run time memory? (y/n)      -
+//                            -------------------------------------------------------------""");
+//                    executor.setSavePathInMem(setBooleanParameter());
+//                } else {
+//                    executor.setSavePathInMem(true);
+//                }
+                executor.setSavePathInMem(true);
 
                 executor.setAlgo(algoIndex, graph);
                 break;
@@ -209,29 +210,28 @@ public class Main {
         System.out.println("Memeory usage:" + (Runtime.getRuntime().totalMemory()/1000000) +
                 "/" +(Runtime.getRuntime().maxMemory()/1000000));
 
-        if(executor.isSavePathInMem()) {
-            System.out.println("""
-                    -------------------------------------------------------------
-                    - Paths are now stored in memory.                           -
-                    - Do you want to save result to files? (y/n)                -
-                    -------------------------------------------------------------""");
-
-            if(setBooleanParameter()) {
-                System.out.println("\n\nWriting results...\n\n");
-                executor.savePathsResult();
-            }
-
-            System.out.println("""
-                    -------------------------------------------------------------
-                    - Do you want to print out results? (y/n)                   -
-                    -------------------------------------------------------------""");
-            if(setBooleanParameter()) {
-                executor.printPaths();
-            }
-        }
-        else {
-            System.out.println("Warning: No results saved.");
-        }
+//        if(executor.isSavePathInMem()) {
+//            System.out.println("""
+//                    -------------------------------------------------------------
+//                    - Paths are now stored in memory.                           -
+//                    - Do you want to save result to files? (y/n)                -
+//                    -------------------------------------------------------------""");
+//
+//            if(setBooleanParameter()) {
+//                System.out.println("\n\nWriting results...\n\n");
+//                executor.savePathsResult();
+//            }
+//
+//            System.out.println("""
+//                    -------------------------------------------------------------
+//                    - Do you want to print out results? (y/n)                   -
+//                    -------------------------------------------------------------""");
+//            if(setBooleanParameter()) {
+//                executor.printPaths();
+//            }
+//        } else {
+//            System.out.println("Warning: No results saved.");
+//        }
     }
 
 
