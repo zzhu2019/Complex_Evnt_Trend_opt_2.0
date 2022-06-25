@@ -18,13 +18,14 @@ Util="$DagGenTool $DS $Generator $FileParser $Type $GraphBuilder $RandomTimeGen 
 
 #Algos
 TraversalAlgos=CET-impl/src/Traversal/*.java
+TraversalConcurrentTasks=CET-impl/src/Traversal/ConcurrentRunnables/*.java
 
 #Main executor
 Main=CET-impl/src/Main.java
 
 
 
-javac $Components $Util $TraversalAlgos $Executor $Main -d out/
+javac $Components $Util $TraversalAlgos $TraversalConcurrentTasks $Executor $Main -d out/
 
 cd out/
 java src.Main
