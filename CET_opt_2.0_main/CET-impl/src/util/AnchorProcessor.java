@@ -132,44 +132,45 @@ public class AnchorProcessor {
         boolean[] visited = new boolean[graph.getNumVertex()];
         Arrays.fill(visited, false);
 
-        for(int i : graph.getStartPoints()) {
-            if(!visited[i]) {
-                topologicalSort(i, visited, topStack);
-            }
-        }
 
-        // Reverse the order of elements in the stack
-//        ArrayList<Integer> results = new ArrayList<>(graph.getStartPoints());
-        ArrayList<Short> results = new ArrayList<>();
 
-        // Add non-end nodes secondly
-        while(!topStack.empty()) {
-            short r = topStack.pop();
-            if(!graph.getStartPoints().contains(r) && !graph.getEndPoints().contains(r)) {
-                results.add(r);
-            }
-        }
-
-        // Reduce the number of anchor nodes to around HALF if more than HALF of available nodes will be anchor nodes
-        if((graph.getNumVertex() - graph.getEndPointNum() - graph.getStartPointNum()
-                + graph.getIndependentPointNum())/anchorNum < 2) {
-            anchorNum = (graph.getNumVertex() - graph.getEndPointNum() - graph.getStartPointNum()
-                    + graph.getIndependentPointNum()) / 3;
-            System.out.println("The number of anchor nodes is too large! Reduced to " + anchorNum);
-            anchorList = new short[graph.getStartPointNum() + anchorNum];
-        }
+//        for(int i : graph.getStartPoints()) {
+//            if(!visited[i]) {
+//                topologicalSort(i, visited, topStack);
+//            }
+//        }
+//
+//        // Reverse the order of elements in the stack
+//        ArrayList<Short> results = new ArrayList<>();
+//
+//        // Add non-end nodes secondly
+//        while(!topStack.empty()) {
+//            short r = topStack.pop();
+//            if(!graph.getStartPoints().contains(r) && !graph.getEndPoints().contains(r)) {
+//                results.add(r);
+//            }
+//        }
+//
+//        // Reduce the number of anchor nodes to around HALF if more than HALF of available nodes will be anchor nodes
+//        if((graph.getNumVertex() - graph.getEndPointNum() - graph.getStartPointNum()
+//                + graph.getIndependentPointNum())/anchorNum < 2) {
+//            anchorNum = (graph.getNumVertex() - graph.getEndPointNum() - graph.getStartPointNum()
+//                    + graph.getIndependentPointNum()) / 3;
+//            System.out.println("The number of anchor nodes is too large! Reduced to " + anchorNum);
+//            anchorList = new short[graph.getStartPointNum() + anchorNum];
+//        }
 
         // Add all start nodes in the anchor node lists firstly
         for(int i = 0; i < graph.getStartPointNum(); i++) {
             anchorList[i] = graph.getStartPoints().get(i);
         }
 
-        // TODO: fine-tuned for topological ordering anchor node selection
         // The gap between every two anchor nodes
-        int spacing = results.size() / (anchorNum + 1);
+        int middleNodeNum = graph.getNumVertex() - graph.getStartPointNum() - graph.getEndPointNum();
+        int spacing = middleNodeNum / (anchorNum + 1);
 
         for(int i = 0; i < anchorNum; i++) {
-            anchorList[i + graph.getStartPointNum()] = results.get((i + 1) * spacing);
+            anchorList[i + graph.getStartPointNum()] = (short) ((i + 1) * spacing);
         }
 
         return anchorList;

@@ -138,10 +138,10 @@ public class ConcurrentAnchorGraphTraversal extends GraphTraversal {
         executor.shutdown();
         while(!executor.isTerminated());
 
-//        for(int i = 0 ; i < optimalThreadNum+1; ++i) {
-//            pathNum += pathNumArray[i];
+        for(int i = 0 ; i < optimalThreadNum+1; ++i) {
+            pathNum += pathNumArray[i];
 //            System.out.println("Thread " + i + " with " + pathNumArray[i]);
-//        }
+        }
         long endTime = System.nanoTime();
         timeElapsed = endTime - startTime;
         System.out.println(new Time(System.currentTimeMillis()).toString() + " - finished concatenate!");
