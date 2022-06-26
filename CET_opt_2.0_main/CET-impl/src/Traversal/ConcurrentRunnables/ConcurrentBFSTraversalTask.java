@@ -116,6 +116,6 @@ public class ConcurrentBFSTraversalTask implements Runnable {
             }
         }
 
-        System.out.println("Thread " + threadId + " finish traversal.");
+//        System.out.println("Thread " + threadId + " finish traversal.");
     }
 }
