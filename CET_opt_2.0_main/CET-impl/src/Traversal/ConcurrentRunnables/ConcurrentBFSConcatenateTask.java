@@ -53,7 +53,7 @@ public class ConcurrentBFSConcatenateTask implements Runnable {
     public void run() {
         int threadId = (int) Thread.currentThread().getId()%threadNum + 1;
 
-        System.out.println("Thread " + threadId + " starts concatenation!");
+//        System.out.println("Thread " + threadId + " starts concatenation!");
 
         // each thread get a start node
         HashMap<Short, CustomObjStack<short[]>> map = anchorPathsForStartNodes.get(startPathStartNode);
@@ -108,7 +108,7 @@ public class ConcurrentBFSConcatenateTask implements Runnable {
             }
         }
 
-        System.out.println("Thread " + threadId + " finish concatenate.");
+//        System.out.println("Thread " + threadId + " finish concatenate.");
     }
 
     /**

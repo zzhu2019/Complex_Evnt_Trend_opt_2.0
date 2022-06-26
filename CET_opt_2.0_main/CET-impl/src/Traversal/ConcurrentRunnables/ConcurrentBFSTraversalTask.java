@@ -61,7 +61,7 @@ public class ConcurrentBFSTraversalTask implements Runnable {
      */
     public void run() {
         int threadId = (int) Thread.currentThread().getId()%threadNum + 1;
-        System.out.println("Thread " + threadId + " starts traversal!");
+//        System.out.println("Thread " + threadId + " starts traversal!");
 
         ShortArray path = new ShortArray(10);
         path.add(startAnchor);
@@ -70,7 +70,7 @@ public class ConcurrentBFSTraversalTask implements Runnable {
         if(graph.startContains(startAnchor) && graph.endContains(startAnchor)) {
             pathNumArray[threadId]++;
             validPathsArray.get(threadId).add(path.getArray());
-            System.out.println("Thread " + threadId + " finish traversal.");
+//            System.out.println("Thread " + threadId + " finish traversal.");
             return;
         }
 

@@ -138,10 +138,10 @@ public class ConcurrentAnchorGraphTraversal extends GraphTraversal {
         executor.shutdown();
         while(!executor.isTerminated());
 
-        for(int i = 0 ; i < optimalThreadNum+1; ++i) {
-            pathNum += pathNumArray[i];
-            System.out.println("Thread " + i + " with " + pathNumArray[i]);
-        }
+//        for(int i = 0 ; i < optimalThreadNum+1; ++i) {
+//            pathNum += pathNumArray[i];
+//            System.out.println("Thread " + i + " with " + pathNumArray[i]);
+//        }
         long endTime = System.nanoTime();
         timeElapsed = endTime - startTime;
         System.out.println(new Time(System.currentTimeMillis()).toString() + " - finished concatenate!");
@@ -237,9 +237,9 @@ public class ConcurrentAnchorGraphTraversal extends GraphTraversal {
      */
     void DFSConcatenate(short threadNum) {
         for(short start : graph.getStartPoints()) {
-            System.out.println("start " + start);
+//            System.out.println("start " + start);
             for(Short endNode : anchorPathsForStartNodes.get(start).keySet()) {
-                System.out.println("start " + start + " endNode " + endNode);
+//                System.out.println("start " + start + " endNode " + endNode);
                 Runnable worker = new ConcurrentDFSConcatenateTask(start, endNode, anchorPathsForMidNodes,
                         anchorPathsForStartNodes, graph, anchorNodes, pathNumArray, validPathsArray, threadNum);
                 executor.execute(worker);
