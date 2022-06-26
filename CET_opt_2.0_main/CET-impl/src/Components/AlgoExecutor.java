@@ -80,18 +80,19 @@ public class AlgoExecutor {
     // Add anchor nodes to algorithm
     private void selectAnchorType(CompressedGraph graph){
         Scanner sc = new Scanner(System.in);
-
-        System.out.println("""
-                -------------------------------------------------------------
-                - As you have selected hybrid type,                         -
-                - please specify the anchor nodes selection strategy:       -
-                -   1. Random selection                                     -
-                -   2. Largest degree nodes                                 -
-                -   3. Equally distributed nodes                            -
-                -   4. Smallest degree nodes                                -
-                - If an invalid option is entered, the default is 1.        -
-                -------------------------------------------------------------""");
-        String input = sc.nextLine();
+//
+//        System.out.println("""
+//                -------------------------------------------------------------
+//                - As you have selected hybrid type,                         -
+//                - please specify the anchor nodes selection strategy:       -
+//                -   1. Random selection                                     -
+//                -   2. Largest degree nodes                                 -
+//                -   3. Equally distributed nodes                            -
+//                -   4. Smallest degree nodes                                -
+//                - If an invalid option is entered, the default is 1.        -
+//                -------------------------------------------------------------""");
+//        String input = sc.nextLine();
+        String input = "3";
         switch(input) {
             case "2" -> selection = AnchorType.LARGEST_DEGREE;
             case "3" -> selection = AnchorType.EQUAL_DISTRIBUTE;
